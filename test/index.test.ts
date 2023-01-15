@@ -1,17 +1,17 @@
 import { test, expect, beforeEach, afterEach } from "@jest/globals";
 import { schema, setup, restore } from "./setup.js";
-import { JSONDatabase } from "../source/index.js";
+import { SunDB } from "../source/index.js";
 
 beforeEach(setup);
 afterEach(restore);
 
 test("listTables", async () => {
-  const db = new JSONDatabase("./data.json", schema);
+  const db = new SunDB("./data.json", schema);
   expect(db.listTables()).toEqual(["users"]);
 });
 
 test("race condition", async () => {
-  const { client } = new JSONDatabase("./data.json", schema);
+  const { client } = new SunDB("./data.json", schema);
   await Promise.all([
     client.users.set("1", {
       id: 1,

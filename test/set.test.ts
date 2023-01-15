@@ -1,12 +1,12 @@
 import { test, expect, beforeEach, afterEach } from "@jest/globals";
 import { schema, setup, restore } from "./setup.js";
-import { JSONDatabase } from "../source/index.js";
+import { SunDB } from "../source/index.js";
 
 beforeEach(setup);
 afterEach(restore);
 
 test("set", async () => {
-  const { client } = new JSONDatabase("./data.json", schema);
+  const { client } = new SunDB("./data.json", schema);
   const newUser = {
     id: 3,
     name: "New User",
