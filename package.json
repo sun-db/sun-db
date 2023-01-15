@@ -1,0 +1,62 @@
+{
+  "name": "json-kv-db",
+  "version": "0.0.0",
+  "description": "Read and write values from a JSON store",
+  "license": "MIT",
+  "private": false,
+  "contributors": [],
+  "homepage": "https://github.com/bconnorwhite/json-kv-db#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bconnorwhite/json-kv-db.git"
+  },
+  "bugs": "https://github.com/bconnorwhite/json-kv-db/issues",
+  "keywords": [],
+  "type": "module",
+  "main": ".auto/build/index.js",
+  "exports": "./.auto/build/index.js",
+  "types": ".auto/build/index.d.ts",
+  "files": [
+    ".auto/build/**/!(tsconfig.tsbuildinfo)"
+  ],
+  "engines": {
+    "node": "^14.13.1 || >=16.0.0"
+  },
+  "scripts": {
+    "build": "auto build",
+    "lint": "auto lint",
+    "prepack": "yarn build",
+    "release": "auto release",
+    "test": "auto test",
+    "typecheck": "auto typecheck"
+  },
+  "devDependencies": {
+    "@autosoft/tsconfig": "^1.0.1",
+    "@jest/globals": "^29.3.1",
+    "@types/mock-fs": "^4.13.1",
+    "@types/node": "^18.11.18",
+    "autorepo": "^0.1.9",
+    "jest": "^29.3.1",
+    "mock-fs": "^5.2.0",
+    "ts-node": "^10.9.1"
+  },
+  "eslintConfig": {
+    "extends": "@autosoft/eslint-config"
+  },
+  "jest": {
+    "preset": "@autosoft/jest-preset"
+  },
+  "npmpackagejsonlint": {
+    "extends": "npm-package-json-lint-config-auto"
+  },
+  "dependencies": {
+    "json-to-zod": "^1.1.2",
+    "mem": "^9.0.2",
+    "p-lock": "^3.0.0",
+    "read-file-safe": "^2.1.0",
+    "read-json-safe": "^2.0.2",
+    "types-json": "^3.0.0",
+    "write-json-safe": "^2.1.0",
+    "zod": "^3.20.2"
+  }
+}
