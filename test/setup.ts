@@ -27,9 +27,10 @@ export {
 };
 
 export const schema = {
-  users: z.object({
-    id: z.number(),
+  users: {
+    id: z.number().int().positive(),
     name: z.string(),
-    age: z.number()
-  })
+    age: z.number().int().positive()
+  }
 };
+

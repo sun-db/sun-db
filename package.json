@@ -51,7 +51,6 @@
   },
   "dependencies": {
     "json-to-zod": "^1.1.2",
-    "mem": "^9.0.2",
     "p-lock": "^3.0.0",
     "read-file-safe": "^2.1.0",
     "read-json-safe": "^2.0.2",

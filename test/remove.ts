@@ -5,9 +5,9 @@ import { SunDB } from "../source/index.js";
 beforeEach(setup);
 afterEach(restore);
 
-test("delete", async () => {
+test("remove", async () => {
   const { client } = new SunDB("./data.json", schema);
-  await client.users.delete("1");
+  await client.users.remove("1");
   const user = await client.users.get("1");
   expect(user).toBe(undefined);
 });

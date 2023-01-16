@@ -3,7 +3,7 @@ import { getLock, Lock } from "p-lock";
 import { readJSON } from "read-json-safe";
 import { writeJSON } from "write-json-safe";
 import { isJSONObject } from "types-json";
-import { Schema, TableName, TableValue } from "./index.js";
+import { Schema, TableName, TableData, TableRecord } from "./index.js";
 
 export class DataStore<S extends Schema> {
   private path: string;
@@ -23,18 +23,25 @@ export class DataStore<S extends Schema> {
     release();
     return result;
   }
-  async read<K extends TableName<S>>(tableName: K): Promise<TableValue<S, K> | undefined> {
+  async read<K extends TableName<S>>(tableName: K): Promise<TableData<S[K]>> {
     const json = await readJSON(this.path);
-    const result = z.record(z.string(), this.schema[tableName]).safeParse(isJSONObject(json) ? json[tableName] : {});
-    return result.success ? result.data : undefined;
+    if(isJSONObject(json)) {
+      const result = z.record(z.string(), z.object(this.schema[tableName])).safeParse(json[tableName]);
+      return (result.success ? result.data : {}) as TableData<S[K]>;
+    } else {
+      return {};
+    }
   }
-  async write<K extends TableName<S>>(tableName: K, data: TableValue<S, K>): Promise<void> {
+  async write<K extends TableName<S>>(tableName: K, data: TableData<S[K]>): Promise<void> {
     let json = await readJSON(this.path);
     if(isJSONObject(json)) {
       json[tableName] = data;
     } else {
       json = { [tableName]: data };
     }
-    await writeJSON(this.path, json);
+    const success = await writeJSON(this.path, json);
+    if(!success) {
+      throw new Error("Failed to write.");
+    }
   }
 }
