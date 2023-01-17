@@ -42,7 +42,14 @@ export class RecordTable<S extends Schema, N extends RecordTableName<S>> extends
     return this.datastore.write(databaseData);
   }
   /**
-   * Get a record by key.
+   * Return true if the key exists.
+   */
+  async has(key: RecordTableKey<S, N>): Promise<boolean> {
+    const table = await this.read();
+    return key in table;
+  }
+  /**
+   * Get a value by key.
    * Returns undefined if the record doesn't exist.
    */
   async get(key: RecordTableKey<S, N>): Promise<RecordTableValue<S, N> | undefined> {
@@ -50,10 +57,10 @@ export class RecordTable<S extends Schema, N extends RecordTableName<S>> extends
     return table[key];
   }
   /**
-   * Create a new record if it doesn't exist.
-   * Returns the new record if it was created, or undefined if it already exists.
+   * Add a new key if the provided key doesn't exist.
+   * Returns the new value if it was created, or undefined if it already exists.
    */
-  async create(key: RecordTableKey<S, N>, value: RecordTableValue<S, N>): Promise<RecordTableValue<S, N> | undefined> {
+  async add(key: RecordTableKey<S, N>, value: RecordTableValue<S, N>): Promise<RecordTableValue<S, N> | undefined> {
     return this.datastore.transaction(async () => {
       const table = await this.read();
       if(table[key]) {
@@ -66,8 +73,8 @@ export class RecordTable<S extends Schema, N extends RecordTableName<S>> extends
     });
   }
   /**
-   * Set a record to a value by key.
-   * Returns the new record.
+   * Set a key to a value.
+   * Returns the new value.
    */
   async set(key: RecordTableKey<S, N>, value: RecordTableValue<S, N>) {
     return this.datastore.transaction(async () => {
@@ -75,6 +82,22 @@ export class RecordTable<S extends Schema, N extends RecordTableName<S>> extends
       table[key] = value;
       await this.write(table);
       return value;
+    });
+  }
+  /**
+   * Replace a key with a value.
+   * Returns the new value if the key existed, or undefined if it didn't.
+   */
+  async replace(key: RecordTableKey<S, N>, value: RecordTableValue<S, N>) {
+    return this.datastore.transaction(async () => {
+      const table = await this.read();
+      if(table[key]) {
+        table[key] = value;
+        await this.write(table);
+        return value;
+      } else {
+        return undefined;
+      }
     });
   }
   /**
@@ -88,6 +111,14 @@ export class RecordTable<S extends Schema, N extends RecordTableName<S>> extends
       delete table[key];
       await this.write(table);
       return value;
+    });
+  }
+  /**
+   * Remove all records.
+   */
+  async clear() {
+    return this.datastore.transaction(async () => {
+      await this.write({} as RecordTableData<S, N>);
     });
   }
 }
