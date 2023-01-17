@@ -56,7 +56,7 @@ export class SunDB<S extends Schema> {
     }, {} as SunClient<S>);
   }
   async migrate(targetVersion: number, migrations: Migrations<S>): Promise<void> {
-    const currentVersion = await this.datastore.version();
+    const currentVersion = await this.version();
     const validMigrations = Object.keys(migrations).sort().map((key) => ({
       version: parseInt(key),
       migrate: migrations[key]
@@ -91,5 +91,11 @@ export class SunDB<S extends Schema> {
    */
   remove(): Promise<void> {
     return this.datastore.remove();
+  }
+  /**
+   * Get the current version of the database.
+   */
+  version(): Promise<number> {
+    return this.datastore.version();
   }
 }
