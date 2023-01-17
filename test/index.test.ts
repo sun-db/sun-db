@@ -14,19 +14,16 @@ test("race condition", async () => {
   const { client } = new SunDB("./data.json", schema);
   await Promise.all([
     client.users.set("1", {
-      id: 1,
       name: "New Username",
       age: 20
     }),
     client.users.set("2", {
-      id: 2,
       name: "New Username",
       age: 21
     })
   ]);
   const user = await client.users.get("1");
   expect(user).toEqual({
-    id: 1,
     name: "New Username",
     age: 20
   });

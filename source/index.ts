@@ -1,44 +1,32 @@
-import z from "zod";
-import { JSONValue } from "types-json";
 import { DataStore } from "./datastore.js";
-import { Table } from "./table.js";
-
-type TableSchema = {
-  [key: string]: z.ZodSchema<JSONValue>;
-};
+import { TableSchema, TableData, ArrayTable, RecordTable, ArrayTableName, RecordTableName } from "./table/index.js";
+import { Metadata } from "./metadata.js";
+import { z } from "zod";
 
 export type Schema = {
-  [key: string]: TableSchema;
+  [K in keyof Metadata]?: never;
 } & {
-  _version?: never;
+  [tableName: string]: TableSchema;
 };
 
 export type TableName<S extends Schema> = keyof S & string;
 
-export type TableRecord<T extends TableSchema> = {
-  [F in keyof T]: T[F]["_type"];
-};
-
-export type TableData<T extends TableSchema> = {
-  [key: string]: TableRecord<T>;
-};
-
-export type Metadata = {
-  _version: number;
-};
-
 export type DatabaseData<S extends Schema> = {
-  [K in TableName<S>]: TableData<S[K]>;
+  [K in TableName<S>]: TableData<S, K>;
 } & Metadata;
-
-export type SunClient<S extends Schema> = {
-  [K in TableName<S>]: Table<S, K>;
-};
 
 export type Migration<S extends Schema> = (data: DatabaseData<S>) => Promise<DatabaseData<S>>;
 
 export type Migrations<S extends Schema> = {
   [key: number]: Migration<S>;
+};
+
+export type SunClient<S extends Schema> = {
+  [K in TableName<S>]: K extends ArrayTableName<S>
+    ? ArrayTable<S, K>
+    : K extends RecordTableName<S>
+      ? RecordTable<S, K>
+      : never;
 };
 
 export class SunDB<S extends Schema> {
@@ -47,11 +35,13 @@ export class SunDB<S extends Schema> {
   constructor(path: string, schema: S) {
     this.datastore = new DataStore(path, schema);
     // Create client
-    this.initClient();
-  }
-  private initClient() {
     this.client = this.listTables().reduce((client, tableName) => {
-      client[tableName] = new Table(this.datastore, tableName);
+      const tableSchema = schema[tableName];
+      if(tableSchema instanceof z.ZodArray) {
+        (client[tableName] as ArrayTable<S, ArrayTableName<S>>) = new ArrayTable(this.datastore, tableName as ArrayTableName<S>);
+      } else if(tableSchema instanceof z.ZodRecord) {
+        (client[tableName] as RecordTable<S, RecordTableName<S>>) = new RecordTable(this.datastore, tableName as RecordTableName<S>);
+      }
       return client;
     }, {} as SunClient<S>);
   }
@@ -89,8 +79,8 @@ export class SunDB<S extends Schema> {
   /**
    * Remove the database file.
    */
-  remove(): Promise<void> {
-    return this.datastore.remove();
+  erase(): Promise<void> {
+    return this.datastore.erase();
   }
   /**
    * Get the current version of the database.
