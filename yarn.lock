@@ -3708,6 +3708,11 @@ is-path-inside@^3.0.3:
   resolved "https://registry.yarnpkg.com/is-path-inside/-/is-path-inside-3.0.3.tgz#d231362e53a07ff2b0e0ea7fed049161ffd16283"
   integrity sha512-Fd4gABb+ycGAmKou8eMftCupSir5lRxqf4aD/vd0cD2qc4HL07OjCeuHMr8Ro4CoMaeCKDB0/ECBOVWjTwUvPQ==
 
+is-path-inside@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/is-path-inside/-/is-path-inside-4.0.0.tgz#805aeb62c47c1b12fc3fd13bfb3ed1e7430071db"
+  integrity sha512-lJJV/5dYS+RcL8uQdBDW9c9uWFLLBNRyFhnAKXw5tVqLlKZ4RMGZKv+YQ/IA3OhD+RpbJa1LLFM1FQPGyIXvOA==
+
 is-plain-obj@^1.0.0, is-plain-obj@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/is-plain-obj/-/is-plain-obj-1.1.0.tgz#71a50c8429dfca773c92a390a4a03b39fcd51d3e"
@@ -4483,7 +4488,7 @@ lodash.merge@^4.6.2:
   resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
   integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
 
-lodash@^4.17.15, lodash@^4.17.21:
+lodash@^4.17.15, lodash@^4.17.21, lodash@^4.17.4:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -5594,6 +5599,13 @@ remove-file-safe@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/remove-file-safe/-/remove-file-safe-1.0.1.tgz#550c1ec9c59fc115eb51de097a0052ef14b07061"
   integrity sha512-YzBF0IfrPG9PMGCZsQjMNeIyi9+PPYLDHTcU+bDhgZhfaO6WFpA75+kB5eEkg9C3Puomo6Y50Ll8sCem2TiBdA==
+
+remove-file-safe@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/remove-file-safe/-/remove-file-safe-3.0.0.tgz#3d33e153ec9792be769f1b1d69f52c374b6407c5"
+  integrity sha512-JkgTbVCca0UQjWSAhpSPFR+ZT4Fr+2qkvQ5hMa8WMZGDLI56jztX+ZQpdCvzc+MBxyj4vlZs/dCln2DIvHS43w==
+  dependencies:
+    is-path-inside "^4.0.0"
 
 require-directory@^2.1.1:
   version "2.1.1"
