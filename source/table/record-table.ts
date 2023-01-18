@@ -15,9 +15,9 @@ type RecordValue<R extends Record<string, JSONValue>> = R extends Record<string,
   ? V
   : never;
 
-export type RecordTableName<S extends Schema> = S[keyof S] extends RecordTableSchema
-  ? TableName<S>
-  : never;
+export type RecordTableName<S extends Schema> = {
+  [N in TableName<S>]: S[N] extends RecordTableSchema ? N : never;
+}[TableName<S>];
 
 export type RecordTableKey<S extends Schema, N extends RecordTableName<S>> = S[N] extends RecordTableSchema
   ? RecordKey<z.infer<S[N]>>

@@ -9,7 +9,7 @@ export type Schema = {
   [tableName: string]: TableSchema;
 };
 
-export type TableName<S extends Schema> = keyof S & string;
+export type TableName<S extends Schema> = Extract<keyof S, string>;
 
 export type DatabaseData<S extends Schema> = {
   [K in TableName<S>]: TableData<S, K>;

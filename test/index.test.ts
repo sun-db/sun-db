@@ -7,7 +7,7 @@ afterEach(restore);
 
 test("listTables", async () => {
   const db = new SunDB("./data.json", schema);
-  expect(db.listTables()).toEqual(["users"]);
+  expect(db.listTables()).toEqual(["users", "posts"]);
 });
 
 test("race condition", async () => {

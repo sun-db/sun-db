@@ -32,9 +32,9 @@ export class DataStore<S extends Schema> {
     return this.listTables().reduce((retval, tableName) => {
       const tableSchema = this.schema[tableName];
       if(tableSchema instanceof z.ZodArray) {
-        retval[tableName] = {}; // as ArrayTableData<ArrayTableSchema>
+        (retval[tableName] as any) = [];
       } else if(tableSchema instanceof z.ZodRecord) {
-        retval[tableName] = [];
+        (retval[tableName] as any) = {};
       }
       return retval;
     }, {} as DatabaseData<S>);

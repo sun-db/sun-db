@@ -30,6 +30,15 @@
     "test": "auto test",
     "typecheck": "auto typecheck"
   },
+  "dependencies": {
+    "json-to-zod": "^1.1.2",
+    "p-lock": "^3.0.0",
+    "read-json-safe": "^2.0.2",
+    "remove-file-safe": "^3.0.0",
+    "types-json": "^3.0.0",
+    "write-json-safe": "^3.0.0",
+    "zod": "^3.20.2"
+  },
   "devDependencies": {
     "@autosoft/tsconfig": "^1.0.1",
     "@jest/globals": "^29.3.1",
@@ -48,15 +57,5 @@
   },
   "npmpackagejsonlint": {
     "extends": "npm-package-json-lint-config-auto"
-  },
-  "dependencies": {
-    "json-to-zod": "^1.1.2",
-    "p-lock": "^3.0.0",
-    "read-file-safe": "^2.1.0",
-    "read-json-safe": "^2.0.2",
-    "remove-file-safe": "^3.0.0",
-    "types-json": "^3.0.0",
-    "write-json-safe": "^2.1.0",
-    "zod": "^3.20.2"
   }
 }
