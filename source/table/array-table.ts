@@ -51,15 +51,36 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
     });
   }
   /**
-   * Update all items that match the query.
+   * Update or items that match the query. If no items match, insert the item.
    * Returns the updated items.
    */
-  async update(query: Query<S, N>, update: ArrayTableItem<S, N> extends JSONObject ? Partial<ArrayTableItem<S, N>> : ArrayTableItem<S, N>): Promise<ArrayTableData<S, N>> {
+  async upsert(query: Query<S, N>, data: ArrayTableItem<S, N>): Promise<ArrayTableData<S, N>> {
     return this.datastore.transaction(async () => {
       const table = await this.read();
       const updated: ArrayTableData<S, N> = [];
       const result = map(table, query, (item) => {
-        const transform = typeof item === "object" && item !== null ? Object.assign(item, update) : (update as ArrayTableItem<S, N>);
+        const transform = typeof item === "object" && item !== null ? Object.assign(item, data) : (data as ArrayTableItem<S, N>);
+        updated.push(transform);
+        return transform;
+      });
+      if(updated.length === 0) {
+        result.push(data);
+        updated.push(data);
+      }
+      await this.write(result);
+      return updated;
+    });
+  }
+  /**
+   * Update all items that match the query.
+   * Returns the updated items.
+   */
+  async update(query: Query<S, N>, data: ArrayTableItem<S, N> extends JSONObject ? Partial<ArrayTableItem<S, N>> : ArrayTableItem<S, N>): Promise<ArrayTableData<S, N>> {
+    return this.datastore.transaction(async () => {
+      const table = await this.read();
+      const updated: ArrayTableData<S, N> = [];
+      const result = map(table, query, (item) => {
+        const transform = typeof item === "object" && item !== null ? Object.assign(item, data) : (data as ArrayTableItem<S, N>);
         updated.push(transform);
         return transform;
       });
