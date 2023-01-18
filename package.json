@@ -1,7 +1,7 @@
 {
-  "name": "json-kv-db",
+  "name": "sun-db",
   "version": "0.0.0",
-  "description": "Read and write values from a JSON store",
+  "description": "The database for your first 100 users.",
   "license": "MIT",
   "private": false,
   "author": "Connor White",
