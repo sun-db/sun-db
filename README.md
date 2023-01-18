@@ -4,8 +4,8 @@
   <a href="https://npmjs.com/package/sun-db">
     <img alt="NPM" src="https://img.shields.io/npm/v/sun-db.svg">
   </a>
-  <a href="https://github.com/bconnorwhite/sun-db">
-    <img alt="TypeScript" src="https://img.shields.io/github/languages/top/bconnorwhite/sun-db.svg">
+  <a href="https://github.com/sun-db/sun-db">
+    <img alt="TypeScript" src="https://img.shields.io/github/languages/top/sun-db/sun-db.svg">
   </a>
 </div>
 
@@ -16,8 +16,8 @@
 <br />
 
 _If I should maintain this repo, please ⭐️_
-<a href="https://github.com/bconnorwhite/json-kv-db">
-  <img align="right" alt="GitHub stars" src="https://img.shields.io/github/stars/bconnorwhite/json-kv-db?label=%E2%AD%90%EF%B8%8F&style=social">
+<a href="https://github.com/sun-db/sun-db">
+  <img align="right" alt="GitHub stars" src="https://img.shields.io/github/stars/sun-db/sun-db?label=%E2%AD%90%EF%B8%8F&style=social">
 </a>
 
 _DM me on [Twitter](https://twitter.com/bconnorwhite) if you have questions or suggestions._
@@ -696,10 +696,9 @@ await db.migrate(2, {
 });
 ```
 
-
 <!--BEGIN FOOTER-->
 
-<h2 id="license">License <a href="https://opensource.org/licenses/MIT"><img align="right" alt="license" src="https://img.shields.io/npm/l/json-kv-db.svg"></a></h2>
+<h2 id="license">License <a href="https://opensource.org/licenses/MIT"><img align="right" alt="license" src="https://img.shields.io/npm/l/sun-db.svg"></a></h2>
 
 [MIT](https://opensource.org/licenses/MIT) - _MIT License_
 <!--END FOOTER-->

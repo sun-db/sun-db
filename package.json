@@ -4,14 +4,28 @@
   "description": "Read and write values from a JSON store",
   "license": "MIT",
   "private": false,
-  "contributors": [],
-  "homepage": "https://github.com/bconnorwhite/json-kv-db#readme",
+  "author": "Connor White",
+  "contributors": [
+    "Connor White"
+  ],
+  "homepage": "https://sundb.dev",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bconnorwhite/json-kv-db.git"
+    "url": "git+https://github.com/sun-db/sun-db.git"
   },
-  "bugs": "https://github.com/bconnorwhite/json-kv-db/issues",
-  "keywords": [],
+  "bugs": "https://github.com/sun-db/sun-db/issues",
+  "keywords": [
+    "sun",
+    "sundb",
+    "sun-db",
+    "json",
+    "db",
+    "database",
+    "zod",
+    "kv",
+    "key",
+    "value"
+  ],
   "type": "module",
   "main": ".auto/build/index.js",
   "exports": "./.auto/build/index.js",
