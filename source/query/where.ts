@@ -1,10 +1,8 @@
-/* eslint-disable max-lines */
-/* eslint-disable max-len */
 import { JSONValue, JSONArray, JSONObject } from "read-json-safe";
 import { Schema } from "../index.js";
-import { ArrayTableData, ArrayTableItem, ArrayTableName } from "./array-table.js";
+import { ArrayTableItem, ArrayTableName } from "../table/array-table.js";
 
-type JSONPrimitive = boolean | string | number | null;
+export type JSONPrimitive = boolean | string | number | null;
 
 export type EqualityComparison<V extends JSONPrimitive> = {
   eq?: V;
@@ -24,11 +22,23 @@ export type ListComparison<V extends JSONPrimitive> = {
 };
 
 export type TextComparison = {
+  startsWith?: string;
+  nstartsWith?: string;
+  endsWith?: string;
+  nendsWith?: string;
+  includes?: string;
+  nincludes?: string;
   regex?: RegExp;
   nregex?: RegExp;
 };
 
-export type BooleanComparison<V extends boolean> = EqualityComparison<V>;
+export type NullComparison<V extends null> =
+  & EqualityComparison<V>
+  & ListComparison<V>;
+
+export type BooleanComparison<V extends boolean> =
+  & EqualityComparison<V>
+  & ListComparison<V>;
 
 export type NumberComparison<V extends number> =
   & EqualityComparison<V>
@@ -60,19 +70,11 @@ export type Comparison<V extends JSONValue> = V extends boolean
         ? ArrayComparison<V>
         : V extends JSONObject
           ? ObjectComparison<V>
-          : never;
+          : V extends null
+            ? NullComparison<V>
+            : never;
 
 export type Where<S extends Schema, N extends ArrayTableName<S>> = Comparison<ArrayTableItem<S, N>>;
-
-export type QueryOne<S extends Schema, N extends ArrayTableName<S>> = {
-  where: Where<S, N>;
-};
-
-export type Query<S extends Schema, N extends ArrayTableName<S>> = {
-  where?: Where<S, N>;
-  limit?: number;
-  offset?: number;
-};
 
 function compareEquality<V extends JSONPrimitive>(value: V, where: EqualityComparison<V>): boolean {
   let result = true;
@@ -115,6 +117,24 @@ function compareList<V extends JSONPrimitive>(value: V, where: ListComparison<V>
 
 function compareText(value: string, where: TextComparison): boolean {
   let result = true;
+  if(where.startsWith !== undefined) {
+    result = result && value.startsWith(where.startsWith);
+  }
+  if(where.nstartsWith !== undefined) {
+    result = result && !value.startsWith(where.nstartsWith);
+  }
+  if(where.endsWith !== undefined) {
+    result = result && value.endsWith(where.endsWith);
+  }
+  if(where.nendsWith !== undefined) {
+    result = result && !value.endsWith(where.nendsWith);
+  }
+  if(where.includes !== undefined) {
+    result = result && value.includes(where.includes);
+  }
+  if(where.nincludes !== undefined) {
+    result = result && !value.includes(where.nincludes);
+  }
   if(where.regex !== undefined) {
     result = result && where.regex.test(value);
   }
@@ -150,7 +170,7 @@ function compareObject<V extends JSONObject>(value: V, where: ObjectComparison<V
   return result;
 }
 
-function compare<V extends JSONValue>(value: V, where?: Comparison<V>): boolean {
+export function compare<V extends JSONValue>(value: V, where?: Comparison<V>): boolean {
   let result = true;
   if(where === undefined) {
     return result;
@@ -174,61 +194,3 @@ function compare<V extends JSONValue>(value: V, where?: Comparison<V>): boolean 
   }
   return result;
 }
-
-export function find<S extends Schema, N extends ArrayTableName<S>>(array: ArrayTableData<S, N>, query: QueryOne<S, N>) {
-  return array.find((item) => {
-    return compare(item, query.where);
-  });
-}
-
-export function filter<S extends Schema, N extends ArrayTableName<S>>(array: ArrayTableData<S, N>, query?: Query<S, N>) {
-  if(query === undefined) {
-    return array;
-  } else {
-    const result: ArrayTableData<S, N> = [];
-    let index = 0;
-    let offset = query.offset ?? 0;
-    while(result.length < (query.limit ?? array.length) && index < array.length) {
-      const item = array[index];
-      if(compare(item, query.where)) {
-        if(offset > 0) {
-          offset -= 1;
-        } else {
-          result.push(item);
-        }
-      }
-      index+=1;
-    }
-    return result;
-  }
-}
-
-export function map<S extends Schema, N extends ArrayTableName<S>>(
-  array: ArrayTableData<S, N>,
-  query: Query<S, N>,
-  fn: (item: ArrayTableItem<S, N>) => ArrayTableItem<S, N> | undefined
-) {
-  const result: ArrayTableData<S, N> = [];
-  let index = 0;
-  let offset = query.offset ?? 0;
-  while(result.length < (query.limit ?? array.length) && index < array.length) {
-    const item = array[index];
-    if(compare(item, query.where)) {
-      if(offset > 0) {
-        offset -= 1;
-        result.push(item);
-      } else {
-        const mapped = fn(item);
-        if(mapped !== undefined) {
-          result.push(mapped);
-        }
-      }
-    } else {
-      result.push(item);
-    }
-    index+=1;
-  }
-  return result;
-}
-
-

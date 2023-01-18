@@ -5,9 +5,9 @@ import { SunDB } from "../source/index.js";
 beforeEach(setup);
 afterEach(restore);
 
-test("listTables", async () => {
+test("tables", async () => {
   const db = new SunDB("./data.json", schema);
-  expect(db.listTables()).toEqual(["users", "posts"]);
+  expect(db.tables()).toEqual(["users", "posts"]);
 });
 
 test("race condition", async () => {

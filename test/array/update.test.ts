@@ -12,9 +12,10 @@ test("update", async () => {
       title: {
         eq: "Hello World"
       }
+    },
+    data: {
+      title: "Hello Worlds"
     }
-  }, {
-    title: "Hello Worlds"
   });
   const posts = await client.posts.select();
   expect(posts).toEqual([{ ...db.posts[0], title: "Hello Worlds" }]);

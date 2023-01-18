@@ -9,6 +9,18 @@ export class Table<S extends Schema, K extends TableName<S>> {
     this.name = name;
   }
   /**
+   * Rename the table.
+   */
+  async rename(name: string) {
+    return this.datastore.transaction(async () => {
+      const databaseData = await this.datastore.read();
+      databaseData[name as K] = databaseData[this.name];
+      delete databaseData[this.name];
+      await this.datastore.write(databaseData);
+      this.name = name as K;
+    });
+  }
+  /**
    * Drop the table entirely.
    */
   async drop() {

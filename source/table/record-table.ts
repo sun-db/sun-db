@@ -42,7 +42,7 @@ export class RecordTable<S extends Schema, N extends RecordTableName<S>> extends
     return this.datastore.write(databaseData);
   }
   /**
-   * Return true if the key exists.
+   * Returns true if the key exists.
    */
   async has(key: RecordTableKey<S, N>): Promise<boolean> {
     const table = await this.read();

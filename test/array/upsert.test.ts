@@ -12,10 +12,11 @@ test("upsert", async () => {
       title: {
         eq: "Does not exist"
       }
+    },
+    data: {
+      title: "New Title",
+      content: "New Content"
     }
-  }, {
-    title: "New Title",
-    content: "New Content"
   });
   const posts = await client.posts.select();
   expect(posts).toEqual([...db.posts, {

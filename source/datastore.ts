@@ -12,9 +12,9 @@ export type DatabaseData<S extends Schema> = {
 } & Metadata;
 
 export class DataStore<S extends Schema> {
-  private path: string;
-  private schema: S;
   private lock: Lock;
+  path: string;
+  schema: S;
   constructor(path: string, schema: S) {
     this.path = path;
     this.schema = schema;
@@ -29,7 +29,7 @@ export class DataStore<S extends Schema> {
     );
   }
   private emptyDatabaseData(): DatabaseData<S> {
-    return this.listTables().reduce((retval, tableName) => {
+    return this.tables().reduce((retval, tableName) => {
       const tableSchema = this.schema[tableName];
       if(tableSchema instanceof z.ZodArray) {
         (retval[tableName] as any) = [];
@@ -44,7 +44,7 @@ export class DataStore<S extends Schema> {
     // eslint-disable-next-line no-underscore-dangle
     return databaseData._version ?? 0;
   }
-  listTables(): TableName<S>[] {
+  tables(): TableName<S>[] {
     return Object.keys(this.schema).filter((name) => !isMetadataKey(name)) as TableName<S>[];
   }
   async transaction<T>(callback: () => Promise<T>): Promise<T> {
