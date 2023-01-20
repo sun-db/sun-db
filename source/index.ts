@@ -19,7 +19,7 @@ export type DatabaseData<S extends Schema> = {
  * A migration function.
  * If data is returned, it will be written to the database.
  */
-export type Migration<S extends Schema> = (db: SunDB<S>) => Promise<DatabaseData<S> | void>;
+export type Migration<S extends Schema> = (db: DatabaseData<S>) => Promise<DatabaseData<S>>;
 
 export type Migrations<S extends Schema> = {
   [key: number]: Migration<S>;
@@ -121,19 +121,22 @@ export class SunDB<S extends Schema> {
     const currentVersion = await this.version();
     const validMigrations = Object.keys(migrations).sort().map((key) => ({
       version: parseInt(key),
-      migrate: migrations[key]
+      migrate: migrations[parseInt(key)] as Migration<S>
     })).filter(({ version }) => {
       return version > currentVersion && version <= targetVersion;
     });
     for(let i=0; i<validMigrations.length; i+=1) {
-      const { version, migrate } = validMigrations[i];
+      const migration = (validMigrations[i] as { version: number, migrate: Migration<S> });
+      const { version, migrate } = migration;
       await this.datastore.transaction(async () => {
         const databaseData = await this.datastore.read();
-        const migrated = await migrate(databaseData);
+        const migratedData = await migrate(databaseData);
         // eslint-disable-next-line no-underscore-dangle
-        migrated._version = version;
-        await this.datastore.write(migrated);
+        migratedData._version = version;
+        await this.datastore.write(migratedData);
       });
     }
   }
 }
+
+export { arrayTable, recordTable } from "./zod.js";
