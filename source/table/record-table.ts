@@ -1,5 +1,6 @@
 import z from "zod";
 import { JSONValue } from "types-json";
+import { v4 as uuid } from "uuid";
 import { Schema, TableName } from "../index.js";
 import { Table } from "./table.js";
 
@@ -57,19 +58,46 @@ export class RecordTable<S extends Schema, N extends RecordTableName<S>> extends
     return table[key];
   }
   /**
-   * Add a new key if the provided key doesn't exist.
-   * Returns the new value if it was created, or undefined if it already exists.
+   * Add a new record if the provided key doesn't exist.
+   * Returns the new key/value pair if it was created, or undefined if it already exists.
    */
-  async add(key: RecordTableKey<S, N>, value: RecordTableValue<S, N>): Promise<RecordTableValue<S, N> | undefined> {
+  async add(key: RecordTableKey<S, N>, value: RecordTableValue<S, N>): Promise<[RecordTableKey<S, N>, RecordTableValue<S, N>] | undefined> {
     return this.datastore.transaction(async () => {
       const table = await this.read();
       if(table[key]) {
         return undefined;
       } else {
-        table[key.toString()] = value;
+        table[key] = value;
         await this.write(table);
-        return value;
+        return [key, value];
       }
+    });
+  }
+  /**
+   * Add a new record at the next available serial ID.
+   * Returns the new key/value pair.
+   */
+  async addWithSerialID(value: RecordTableValue<S, N>): Promise<[RecordTableKey<S, N>, RecordTableValue<S, N>]> {
+    return this.datastore.transaction(async () => {
+      const table = await this.read();
+      const max = Math.max(0, ...Object.keys(table).map(parseInt).filter((n) => !isNaN(n)));
+      const next = (max + 1).toString() as RecordTableKey<S, N>;
+      table[next] = value;
+      await this.write(table);
+      return [next, value];
+    });
+  }
+  /**
+   * Add a new record at the next available UUID.
+   * Returns the new key/value pair.
+   */
+  async addWithUUID(value: RecordTableValue<S, N>): Promise<[RecordTableKey<S, N>, RecordTableValue<S, N>]> {
+    return this.datastore.transaction(async () => {
+      const table = await this.read();
+      const next = uuid() as RecordTableKey<S, N>;
+      table[next] = value;
+      await this.write(table);
+      return [next, value];
     });
   }
   /**
