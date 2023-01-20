@@ -1,4 +1,4 @@
-import { DataStore } from "./datastore.js";
+import { Datastore, DatastoreOptions } from "./datastore.js";
 import { TableSchema, TableData, ArrayTable, RecordTable, ArrayTableName, RecordTableName } from "./table/index.js";
 import { Metadata } from "./metadata.js";
 import { z } from "zod";
@@ -25,7 +25,7 @@ export type Migrations<S extends Schema> = {
   [key: number]: Migration<S>;
 };
 
-export type SunClient<S extends Schema> = {
+export type SunDBClient<S extends Schema> = {
   [K in TableName<S>]: K extends ArrayTableName<S>
     ? ArrayTable<S, K>
     : K extends RecordTableName<S>
@@ -33,11 +33,13 @@ export type SunClient<S extends Schema> = {
       : never;
 };
 
+export type SunDBOptions = DatastoreOptions;
+
 export class SunDB<S extends Schema> {
-  private datastore: DataStore<S>;
-  client: SunClient<S>;
-  constructor(path: string, schema: S) {
-    this.datastore = new DataStore(path, schema);
+  private datastore: Datastore<S>;
+  client: SunDBClient<S>;
+  constructor(path: string, schema: S, options: SunDBOptions = {}) {
+    this.datastore = new Datastore(path, schema, options);
     // Create client
     this.client = this.tables().reduce((client, tableName) => {
       const tableSchema = schema[tableName];
@@ -47,7 +49,7 @@ export class SunDB<S extends Schema> {
         (client[tableName] as RecordTable<S, RecordTableName<S>>) = new RecordTable(this.datastore, tableName as RecordTableName<S>);
       }
       return client;
-    }, {} as SunClient<S>);
+    }, {} as SunDBClient<S>);
   }
   /**
    * Get the path to the database file.
@@ -86,6 +88,12 @@ export class SunDB<S extends Schema> {
     return this.datastore.transaction(async () => {
       await this.datastore.write(data);
     });
+  }
+  /**
+   * Flush the cache.
+   */
+  flush(): void {
+    return this.datastore.flush();
   }
   /**
    * Drop the entire database.

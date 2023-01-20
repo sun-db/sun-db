@@ -5,27 +5,42 @@ import { writeJSON } from "write-json-safe";
 import { removeFile } from "remove-file-safe";
 import { Schema, TableName } from "./index.js";
 import { isMetadataKey, Metadata } from "./metadata.js";
-import { TableData } from "./table/index.js";
+import { TableData, TableSchema } from "./table/index.js";
 
 export type DatabaseData<S extends Schema> = {
   [K in TableName<S>]: TableData<S, K>;
 } & Metadata;
 
-export class DataStore<S extends Schema> {
+export type DatastoreOptions = {
+  /**
+   * Don't cache the database file in memory.
+   */
+  noCache?: boolean;
+};
+
+export class Datastore<S extends Schema> {
   private lock: Lock;
+  private cache: DatabaseData<S> | undefined = undefined;
   path: string;
   schema: S;
-  constructor(path: string, schema: S) {
+  options: DatastoreOptions;
+  constructor(path: string, schema: S, options: DatastoreOptions = {}) {
     this.path = path;
     this.schema = schema;
     this.lock = getLock();
+    this.options = {
+      noCache: false,
+      ...options
+    };
   }
   private databaseSchema() {
     return z.object(
       Object.keys(this.schema).reduce((retval, tableName) => {
-        retval[tableName] = this.schema[tableName];
+        retval[(tableName as TableName<S>)] = this.schema[tableName] as TableSchema;
         return retval;
-      }, {})
+      }, {} as {
+        [K in TableName<S>]: TableSchema;
+      })
     );
   }
   private emptyDatabaseData(): DatabaseData<S> {
@@ -55,20 +70,35 @@ export class DataStore<S extends Schema> {
     return result;
   }
   async read(): Promise<DatabaseData<S>> {
-    const json = await readJSON(this.path);
-    const result = this.databaseSchema().safeParse(json);
-    return result.success ? result.data as DatabaseData<S> : this.emptyDatabaseData();
+    if(this.cache !== undefined) {
+      return this.cache;
+    } else {
+      const json = await readJSON(this.path);
+      const result = this.databaseSchema().safeParse(json);
+      const data = result.success ? result.data as DatabaseData<S> : this.emptyDatabaseData();
+      if(!this.options.noCache) {
+        this.cache = data;
+      }
+      return data;
+    }
   }
   async write(data: DatabaseData<S>): Promise<void> {
     const success = await writeJSON(this.path, data);
     if(!success) {
       throw new Error("Failed to write.");
+    } else if(!this.options.noCache) {
+      this.cache = data;
     }
+  }
+  flush(): void {
+    this.cache = undefined;
   }
   async drop(): Promise<void> {
     await this.write({} as DatabaseData<S>);
+    this.cache = undefined;
   }
   async erase(): Promise<void> {
     await removeFile(this.path);
+    this.cache = undefined;
   }
 }
