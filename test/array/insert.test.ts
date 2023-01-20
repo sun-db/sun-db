@@ -43,3 +43,16 @@ test("insert now", async () => {
   const content = posts[posts.length-1].content;
   expect(z.string().datetime().safeParse(content).success).toBe(true);
 });
+
+test("insert serialID", async () => {
+  const { client } = new SunDB("./data.json", schema);
+  const data = {
+    id: client.posts.serialID,
+    title: "Hello World 2",
+    content: "Serial ID Test"
+  };
+  await client.posts.insert(data);
+  const posts = await client.posts.select();
+  const id = posts[posts.length-1].id;
+  expect(id).toBe("3");
+});

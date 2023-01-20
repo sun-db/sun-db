@@ -27,6 +27,17 @@ type OrSymbol<T extends JSONValue> = T extends JSONObject
 
 export type ArrayTableData<S extends Schema, N extends ArrayTableName<S>> = ArrayTableItem<S, N>[];
 
+function valueAtPath(parent: JSONValue, path: string[] = []): JSONValue | undefined {
+  const field = path[0];
+  if(field === undefined) {
+    return parent;
+  } else if(typeof parent === "object" && parent !== null) {
+    return valueAtPath((parent as any)[field], path.slice(1));
+  } else {
+    return undefined;
+  }
+}
+
 export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends Table<S, N> {
   private async read(): Promise<ArrayTableData<S, N>> {
     const databaseData = await this.datastore.read();
@@ -37,22 +48,36 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
     (databaseData[this.name] as ArrayTableData<S, N>) = data;
     return this.datastore.write(databaseData);
   }
-  private fillItem(item: symbol | JSONValue): JSONValue {
+  private async generateSerialID(path: string[]): Promise<string> {
+    const data = await this.read();
+    const ids = data.map((item) => {
+      const value = valueAtPath(item, path);
+      return value ? parseInt(value.toString()) : NaN;
+    }).filter((id) => !isNaN(id));
+    const max = Math.max(0, ...ids);
+    return (max + 1).toString();
+  }
+  private async hydrateInput(item: symbol | JSONValue, path: string[] = []): Promise<JSONValue> {
     if(typeof item === "symbol") {
       if(item === this.uuid) {
         return uuid();
       } else if(item === this.now) {
         return new Date().toISOString();
+      } else if(item === this.serialID) {
+        console.log(path);
+        return this.generateSerialID(path);
       } else {
         throw new Error("Invalid symbol");
       }
     } else if(typeof item === "object" && item !== null && !Array.isArray(item)) {
-      return Object.entries(item).reduce((retval, [key, value]) => {
-        if(value !== undefined) {
-          retval[key] = this.fillItem(value);
-        }
-        return retval;
-      }, {} as JSONObject);
+      return Object.entries(item).reduce(async (retval, [key, value]) => {
+        return retval.then(async (result) => {
+          if(value !== undefined) {
+            result[key] = await this.hydrateInput(value, [...path, key]);
+          }
+          return result;
+        });
+      }, Promise.resolve({} as JSONObject));
     } else {
       return item;
     }
@@ -84,7 +109,8 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
   async insert(item: ArrayTableItemInput<S, N>): Promise<void> {
     await this.datastore.transaction(async () => {
       const table = await this.read();
-      table.push(this.fillItem(item as symbol | JSONValue) as ArrayTableItem<S, N>);
+      const value = await this.hydrateInput(item as symbol | JSONValue) as ArrayTableItem<S, N>;
+      table.push(value);
       return this.write(table);
     });
   }
