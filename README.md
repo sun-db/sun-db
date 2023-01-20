@@ -1,6 +1,7 @@
 <!--BEGIN HEADER-->
 <div id="top" align="center">
-  <h1>☀️<br />sun-db</h1>
+  <img align="center" src="assets/logo.png" width="80" height="80" />
+  <h1>sun-db</h1>
   <a href="https://npmjs.com/package/sun-db">
     <img alt="NPM" src="https://img.shields.io/npm/v/sun-db.svg">
   </a>
