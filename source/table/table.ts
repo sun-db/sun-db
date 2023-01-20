@@ -1,10 +1,10 @@
 import { Schema, TableName } from "../index.js";
-import { DataStore } from "../datastore.js";
+import { Datastore } from "../datastore.js";
 
-export class Table<S extends Schema, K extends TableName<S>> {
-  protected datastore: DataStore<S>;
-  name: K;
-  constructor(datastore: DataStore<S>, name: K) {
+export class Table<S extends Schema, N extends TableName<S>> {
+  protected datastore: Datastore<S>;
+  name: N;
+  constructor(datastore: Datastore<S>, name: N) {
     this.datastore = datastore;
     this.name = name;
   }
@@ -14,10 +14,10 @@ export class Table<S extends Schema, K extends TableName<S>> {
   async rename(name: string) {
     return this.datastore.transaction(async () => {
       const databaseData = await this.datastore.read();
-      databaseData[name as K] = databaseData[this.name];
+      databaseData[name as N] = databaseData[this.name];
       delete databaseData[this.name];
       await this.datastore.write(databaseData);
-      this.name = name as K;
+      this.name = name as N;
     });
   }
   /**
