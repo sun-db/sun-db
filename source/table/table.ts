@@ -4,6 +4,10 @@ import { Datastore } from "../datastore.js";
 export class Table<S extends Schema, N extends TableName<S>> {
   protected datastore: Datastore<S>;
   name: N;
+  // Symbols
+  uuid = Symbol("uuid");
+  serialID = Symbol("serialID");
+  now = Symbol("now");
   constructor(datastore: Datastore<S>, name: N) {
     this.datastore = datastore;
     this.name = name;

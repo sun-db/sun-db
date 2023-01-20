@@ -1,4 +1,5 @@
 import { test, expect, beforeEach, afterEach } from "@jest/globals";
+import z from "zod";
 import { schema, setup, restore } from "../setup.js";
 import { SunDB } from "../../source/index.js";
 
@@ -12,7 +13,7 @@ test("add", async () => {
     age: 22
   };
   const user = await client.users.add("3", data);
-  expect(user).toEqual(data);
+  expect(user).toEqual(["3", data]);
 });
 
 test("already exists", async () => {
@@ -22,4 +23,24 @@ test("already exists", async () => {
     age: 22
   });
   expect(user).toBeUndefined();
+});
+
+test("add uuid", async () => {
+  const { client } = new SunDB("./data.json", schema);
+  const data = {
+    name: "New User",
+    age: 22
+  };
+  const user = await client.users.add(client.users.uuid, data);
+  expect(z.string().uuid().safeParse(user?.[0]).success).toBe(true);
+});
+
+test("add serialID", async () => {
+  const { client } = new SunDB("./data.json", schema);
+  const data = {
+    name: "New User",
+    age: 22
+  };
+  const user = await client.users.add(client.users.serialID, data);
+  expect(user?.[0]).toBe("3");
 });

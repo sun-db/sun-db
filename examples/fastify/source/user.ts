@@ -12,11 +12,15 @@ export function userPlugin(server: FastifyInstance, { client }: typeof db, done:
   server.post("/user", async (request, reply) => {
     const body = client.users.schema().element.safeParse(request.body);
     if(body.success) {
-      const user = await client.users.addWithSerialID(body.data);
-      reply.send({
-        key: user[0],
-        ...user[1]
-      });
+      const user = await client.users.add(client.users.serialID, body.data);
+      if(user !== undefined) {
+        reply.send({
+          key: user[0],
+          ...user[1]
+        });
+      } else {
+        reply.code(500).send({ error: "Failed to create user" });
+      }
     } else {
       reply.code(400).send({ error: "Invalid data" });
     }

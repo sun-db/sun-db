@@ -42,6 +42,37 @@ export class RecordTable<S extends Schema, N extends RecordTableName<S>> extends
     (databaseData[this.name] as RecordTableData<S, N>) = data;
     return this.datastore.write(databaseData);
   }
+  private async generateSerialID(): Promise<RecordTableKey<S, N>> {
+    const table = await this.read();
+    const max = Math.max(0, ...Object.keys(table).map((x) => parseInt(x)).filter((n) => !isNaN(n)));
+    return (max + 1).toString() as RecordTableKey<S, N>;
+  }
+  private async generateUUID(): Promise<RecordTableKey<S, N>> {
+    let key: RecordTableKey<S, N> | undefined;
+    while(key === undefined) {
+      const attempt = uuid() as RecordTableKey<S, N>;
+      const collision = await this.has(attempt);
+      if(!collision) {
+        key = attempt;
+      }
+    }
+    return key;
+  }
+  private async hydrate(key: symbol | RecordTableKey<S, N>): Promise<RecordTableKey<S, N>> {
+    if(typeof key === "symbol") {
+      if(key === this.uuid) {
+        return this.generateUUID();
+      } else if(key === this.serialID) {
+        return this.generateSerialID();
+      } else if(key === this.now) {
+        return new Date().toISOString() as RecordTableKey<S, N>;
+      } else {
+        throw new Error("Invalid symbol");
+      }
+    } else {
+      return key;
+    }
+  }
   /**
    * Returns true if the key exists.
    */
@@ -61,43 +92,17 @@ export class RecordTable<S extends Schema, N extends RecordTableName<S>> extends
    * Add a new record if the provided key doesn't exist.
    * Returns the new key/value pair if it was created, or undefined if it already exists.
    */
-  async add(key: RecordTableKey<S, N>, value: RecordTableValue<S, N>): Promise<[RecordTableKey<S, N>, RecordTableValue<S, N>] | undefined> {
+  async add(key: RecordTableKey<S, N> | symbol, value: RecordTableValue<S, N>): Promise<[RecordTableKey<S, N>, RecordTableValue<S, N>] | undefined> {
     return this.datastore.transaction(async () => {
       const table = await this.read();
-      if(table[key]) {
-        return undefined;
-      } else {
-        table[key] = value;
+      const hydratedKey = await this.hydrate(key);
+      if(table[hydratedKey] === undefined) {
+        table[hydratedKey] = value;
         await this.write(table);
-        return [key, value];
+        return [hydratedKey, value];
+      } else {
+        return undefined;
       }
-    });
-  }
-  /**
-   * Add a new record at the next available serial ID.
-   * Returns the new key/value pair.
-   */
-  async addWithSerialID(value: RecordTableValue<S, N>): Promise<[RecordTableKey<S, N>, RecordTableValue<S, N>]> {
-    return this.datastore.transaction(async () => {
-      const table = await this.read();
-      const max = Math.max(0, ...Object.keys(table).map(parseInt).filter((n) => !isNaN(n)));
-      const next = (max + 1).toString() as RecordTableKey<S, N>;
-      table[next] = value;
-      await this.write(table);
-      return [next, value];
-    });
-  }
-  /**
-   * Add a new record at the next available UUID.
-   * Returns the new key/value pair.
-   */
-  async addWithUUID(value: RecordTableValue<S, N>): Promise<[RecordTableKey<S, N>, RecordTableValue<S, N>]> {
-    return this.datastore.transaction(async () => {
-      const table = await this.read();
-      const next = uuid() as RecordTableKey<S, N>;
-      table[next] = value;
-      await this.write(table);
-      return [next, value];
     });
   }
   /**

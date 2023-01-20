@@ -28,9 +28,6 @@ type OrSymbol<T extends JSONValue> = T extends JSONObject
 export type ArrayTableData<S extends Schema, N extends ArrayTableName<S>> = ArrayTableItem<S, N>[];
 
 export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends Table<S, N> {
-  // serialID = Symbol("serialID");
-  uuid = Symbol("uuid");
-  now = Symbol("now");
   private async read(): Promise<ArrayTableData<S, N>> {
     const databaseData = await this.datastore.read();
     return (databaseData[this.name] as ArrayTableData<S, N>) ?? {};
