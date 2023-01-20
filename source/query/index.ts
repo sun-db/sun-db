@@ -38,13 +38,17 @@ export function find<S extends Schema, N extends ArrayTableName<S>>(array: Array
 export function filter<S extends Schema, N extends ArrayTableName<S>>(array: ArrayTableData<S, N>, query?: Query<S, N>) {
   if(query === undefined) {
     return array;
+  } else if(query.limit === undefined && query.offset === undefined) {
+    return array.filter((item) => {
+      return compare(item, query.where);
+    });
   } else {
     const result: ArrayTableData<S, N> = [];
     let index = 0;
     let offset = query.offset ?? 0;
     while(result.length < (query.limit ?? array.length) && index < array.length) {
       const item = array[index];
-      if(compare(item, query.where)) {
+      if(item !== undefined && compare(item, query.where)) {
         if(offset > 0) {
           offset -= 1;
         } else {
