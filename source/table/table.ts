@@ -8,6 +8,9 @@ export class Table<S extends Schema, N extends TableName<S>> {
     this.datastore = datastore;
     this.name = name;
   }
+  schema(): S[N] {
+    return this.datastore.schema[this.name];
+  }
   /**
    * Rename the table.
    */
