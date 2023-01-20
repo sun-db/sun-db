@@ -77,71 +77,67 @@ export type Comparison<V extends JSONValue> = V extends boolean
 export type Where<S extends Schema, N extends ArrayTableName<S>> = Comparison<ArrayTableItem<S, N>>;
 
 function compareEquality<V extends JSONPrimitive>(value: V, where: EqualityComparison<V>): boolean {
-  let result = true;
-  if(where.eq !== undefined) {
-    result = result && (value === where.eq);
+  if(where.eq !== undefined && value !== where.eq) {
+    return false;
   }
-  if(where.neq !== undefined) {
-    result = result && (value !== where.neq);
+  if(where.neq !== undefined && value === where.neq) {
+    return false;
   }
-  return result;
+  return true;
 }
 
 function compareMagnitude<V extends string | number>(value: V, where: MagnitudeComparison<V>): boolean {
-  let result = true;
-  if(where.gt !== undefined && where.gt !== null && value !== null) {
-    result = result && (value > where.gt);
+  if(where.gt !== undefined && value <= where.gt) {
+    return false;
   }
-  if(where.gte !== undefined) {
-    result = result && (value >= where.gte);
+  if(where.gte !== undefined && value < where.gte) {
+    return false;
   }
-  if(where.lt !== undefined) {
-    result = result && (value < where.lt);
+  if(where.lt !== undefined && value >= where.lt) {
+    return false;
   }
-  if(where.lte !== undefined) {
-    result = result && (value <= where.lte);
+  if(where.lte !== undefined && value > where.lte) {
+    return false;
   }
-  return result;
+  return true;
 }
 
 function compareList<V extends JSONPrimitive>(value: V, where: ListComparison<V>): boolean {
-  let result = true;
-  if(where.in !== undefined) {
-    result = result && where.in.includes(value);
+  if(where.in !== undefined && !where.in.includes(value)) {
+    return false;
   }
-  if(where.nin !== undefined) {
-    result = result && !where.nin.includes(value);
+  if(where.nin !== undefined && where.nin.includes(value)) {
+    return false;
   }
-  return result;
+  return true;
 }
 
 function compareText(value: string, where: TextComparison): boolean {
-  let result = true;
-  if(where.startsWith !== undefined) {
-    result = result && value.startsWith(where.startsWith);
+  if(where.startsWith !== undefined && !value.startsWith(where.startsWith)) {
+    return false;
   }
-  if(where.nstartsWith !== undefined) {
-    result = result && !value.startsWith(where.nstartsWith);
+  if(where.nstartsWith !== undefined && value.startsWith(where.nstartsWith)) {
+    return false;
   }
-  if(where.endsWith !== undefined) {
-    result = result && value.endsWith(where.endsWith);
+  if(where.endsWith !== undefined && !value.endsWith(where.endsWith)) {
+    return false;
   }
-  if(where.nendsWith !== undefined) {
-    result = result && !value.endsWith(where.nendsWith);
+  if(where.nendsWith !== undefined && value.endsWith(where.nendsWith)) {
+    return false;
   }
-  if(where.includes !== undefined) {
-    result = result && value.includes(where.includes);
+  if(where.includes !== undefined && !value.includes(where.includes)) {
+    return false;
   }
-  if(where.nincludes !== undefined) {
-    result = result && !value.includes(where.nincludes);
+  if(where.nincludes !== undefined && value.includes(where.nincludes)) {
+    return false;
   }
-  if(where.regex !== undefined) {
-    result = result && where.regex.test(value);
+  if(where.regex !== undefined && !where.regex.test(value)) {
+    return false;
   }
-  if(where.nregex !== undefined) {
-    result = result && !where.nregex.test(value);
+  if(where.nregex !== undefined && where.nregex.test(value)) {
+    return false;
   }
-  return result;
+  return true;
 }
 
 function compareArray<V extends JSONArray>(value: V, where: ArrayComparison<V>): boolean {
@@ -158,39 +154,38 @@ function compareArray<V extends JSONArray>(value: V, where: ArrayComparison<V>):
 }
 
 function compareObject<V extends JSONObject>(value: V, where: ObjectComparison<V>): boolean {
-  let result = true;
   // eslint-disable-next-line guard-for-in
   for(const fieldName in where) {
     const fieldValue = value[fieldName];
-    const comparison = where[fieldName];
-    if(fieldValue) {
-      result = result && compare(fieldValue, comparison as Comparison<NonNullable<V[Extract<keyof V, string>]>>);
+    if(fieldValue !== undefined) {
+      const comparison = where[fieldName] as Comparison<NonNullable<V[Extract<keyof V, string>]>>;
+      if(compare(fieldValue, comparison) === false) {
+        return false;
+      }
     }
   }
-  return result;
+  return true;
 }
 
 export function compare<V extends JSONValue>(value: V, where?: Comparison<V>): boolean {
-  let result = true;
   if(where === undefined) {
-    return result;
-  } else if(value === null) {
-    result = result && compareEquality(value, where as EqualityComparison<null>);
+    return true;
   } else if(typeof value === "boolean") {
-    result = result && compareEquality(value, where as BooleanComparison<boolean>);
+    return compareEquality(value, where as BooleanComparison<boolean>);
   } else if(typeof value === "number") {
-    result = result && compareEquality(value, where as EqualityComparison<number>);
-    result = result && compareMagnitude(value, where as MagnitudeComparison<number>);
-    result = result && compareList(value, where as ListComparison<number>);
+    return compareEquality(value, where as EqualityComparison<number>)
+      && compareMagnitude(value, where as MagnitudeComparison<number>)
+      && compareList(value, where as ListComparison<number>);
   } else if(typeof value === "string") {
-    result = result && compareEquality(value, where as EqualityComparison<string>);
-    result = result && compareMagnitude(value, where as MagnitudeComparison<string>);
-    result = result && compareList(value, where as ListComparison<string>);
-    result = result && compareText(value, where as TextComparison);
+    return compareEquality(value, where as EqualityComparison<string>)
+      && compareMagnitude(value, where as MagnitudeComparison<string>)
+      && compareList(value, where as ListComparison<string>)
+      && compareText(value, where as TextComparison);
+  } else if(value === null) {
+    return compareEquality(value, where as EqualityComparison<null>);
   } else if(Array.isArray(value)) {
-    result = result && compareArray(value, where as ArrayComparison<JSONArray>);
+    return compareArray(value, where as ArrayComparison<JSONArray>);
   } else {
-    result = result && compareObject(value, where as ObjectComparison<JSONObject>);
+    return compareObject(value, where as ObjectComparison<JSONObject>);
   }
-  return result;
 }
