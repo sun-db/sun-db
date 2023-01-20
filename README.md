@@ -29,10 +29,32 @@ _DM me on [Twitter](https://twitter.com/bconnorwhite) if you have questions or s
 ---
 <!--END HEADER-->
 
+## Introduction
+
+With SunDB, your datamodel is a Zod schema, and your database is a JSON file.
+
+### Why is this interesting?
+
+Simplicity, flexibility, and development speed:
+
+**☀️ Easy**  
+NPM install your database with zero configuration, and run locally.
+
+**⚡️ Fast**  
+Create your datamodel in seconds with Zod.
+
+**✨ Simple**  
+Your data is easy to inspect in a JSON file.
+
+**🧘‍♀️ Flexible**  
+Migrations are JavaScript functions.
+
+When starting a new project, you don't always know what your data will end up looking like.
+
+Instead of wasting time building out a database with a complex datamodel, SunDB makes it easy to get started and iterate until you are ready to make that investment.
+
 ## Contents
 
-- [Introduction](#introduction)
-  - [Why is this interesting?](#why-is-this-interesting)
 - [Installation](#installation)
 - [Setup](#setup)
 - [Tables](#tables)
@@ -83,31 +105,6 @@ _DM me on [Twitter](https://twitter.com/bconnorwhite) if you have questions or s
   - [erase](#erase)
   - [version](#version)
   - [migrate](#migrate)
-
-
-## Introduction
-
-With SunDB, your datamodel is a Zod schema, and your database is a JSON file.
-
-### Why is this interesting?
-
-Simplicity, flexibility, and development speed:
-
-**☀️ Easy**  
-NPM install your database with zero configuration, and run locally.
-
-**⚡️ Fast**  
-Create your datamodel in seconds with Zod.
-
-**✨ Simple**  
-Your data is easy to inspect in a JSON file.
-
-**🧘‍♀️ Flexible**  
-Migrations are JavaScript functions.
-
-When starting a new project, you don't always know what your data will end up looking like.
-
-Instead of wasting time building out a database with a complex datamodel, SunDB makes it easy to get started and iterate until you are ready to make that investment.
 
 ## Installation
 
