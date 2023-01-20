@@ -8,6 +8,6 @@
     ]
   },
   "files": [
-    "source/test.ts"
+    "source/index.ts"
   ]
 }
