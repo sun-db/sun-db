@@ -37,6 +37,7 @@
     "node": "^14.13.1 || >=16.0.0"
   },
   "scripts": {
+    "bench": "auto dev ./bench/index.ts",
     "build": "auto build",
     "lint": "auto lint",
     "prepack": "yarn build",
@@ -56,13 +57,16 @@
   },
   "devDependencies": {
     "@autosoft/tsconfig": "^1.0.1",
+    "@faker-js/faker": "^7.6.0",
     "@jest/globals": "^29.3.1",
+    "@types/benchmark": "^2.1.2",
     "@types/mock-fs": "^4.13.1",
     "@types/node": "^18.11.18",
     "@types/uuid": "^9.0.0",
     "autorepo": "^0.1.9",
     "jest": "^29.3.1",
     "mock-fs": "^5.2.0",
+    "tinybench": "^2.3.1",
     "ts-node": "^10.9.1"
   },
   "eslintConfig": {
