@@ -30,8 +30,7 @@ export type ArrayTableData<S extends Schema, N extends ArrayTableName<S>> = Arra
 export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends Table<S, N> {
   // serialID = Symbol("serialID");
   uuid = Symbol("uuid");
-  // createdAt = Symbol("createdAt");
-  // updatedAt = Symbol("updatedAt");
+  now = Symbol("now");
   private async read(): Promise<ArrayTableData<S, N>> {
     const databaseData = await this.datastore.read();
     return (databaseData[this.name] as ArrayTableData<S, N>) ?? {};
@@ -45,6 +44,8 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
     if(typeof item === "symbol") {
       if(item === this.uuid) {
         return uuid();
+      } else if(item === this.now) {
+        return new Date().toISOString();
       } else {
         throw new Error("Invalid symbol");
       }
