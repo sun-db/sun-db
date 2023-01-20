@@ -50,10 +50,10 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
   /**
    * Insert an item into the table.
    */
-  async insert(item: ArrayTableItem<S, N>): Promise<void> {
-    this.datastore.transaction(async () => {
+  async insert(item: InsertArrayTableItem<S, N>): Promise<void> {
+    await this.datastore.transaction(async () => {
       const table = await this.read();
-      table.push(item);
+      table.push(this.fillItem(item as symbol | JSONValue) as ArrayTableItem<S, N>);
       return this.write(table);
     });
   }
@@ -61,7 +61,7 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
    * Insert multiple items into the table.
    */
   async insertAll(items: ArrayTableItem<S, N>[]): Promise<void> {
-    this.datastore.transaction(async () => {
+    await this.datastore.transaction(async () => {
       const table = await this.read();
       table.push(...items);
       return this.write(table);
