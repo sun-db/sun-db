@@ -24,7 +24,8 @@
     "zod",
     "kv",
     "key",
-    "value"
+    "value",
+    "typescript"
   ],
   "type": "module",
   "main": ".auto/build/index.js",
