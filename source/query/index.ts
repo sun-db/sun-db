@@ -59,7 +59,7 @@ export function filter<S extends Schema, N extends ArrayTableName<S>>(array: Arr
 
 export function map<S extends Schema, N extends ArrayTableName<S>>(
   array: ArrayTableData<S, N>,
-  query: Query<S, N>,
+  query: Query<S, N> = {},
   fn: (item: ArrayTableItem<S, N>) => ArrayTableItem<S, N> | undefined
 ) {
   let offset = query.offset ?? 0;
