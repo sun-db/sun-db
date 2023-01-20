@@ -17,12 +17,12 @@ export type ArrayTableItem<S extends Schema, N extends ArrayTableName<S>> = S[N]
 ? z.infer<S[N]>[number]
 : never;
 
-export type InsertArrayTableItem<S extends Schema, N extends ArrayTableName<S>> = S[N] extends ArrayTableSchema
+export type ArrayTableItemInput<S extends Schema, N extends ArrayTableName<S>> = S[N] extends ArrayTableSchema
 ? OrSymbol<z.infer<S[N]>[number]>
 : never;
 
 type OrSymbol<T extends JSONValue> = T extends JSONObject
-  ? { [K in keyof T]: T[K] | symbol; }
+  ? { [K in keyof T]: T[K] extends JSONValue ? OrSymbol<T[K]> : never; }
   : T | symbol;
 
 export type ArrayTableData<S extends Schema, N extends ArrayTableName<S>> = ArrayTableItem<S, N>[];
@@ -84,7 +84,7 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
   /**
    * Insert an item into the table.
    */
-  async insert(item: InsertArrayTableItem<S, N>): Promise<void> {
+  async insert(item: ArrayTableItemInput<S, N>): Promise<void> {
     await this.datastore.transaction(async () => {
       const table = await this.read();
       table.push(this.fillItem(item as symbol | JSONValue) as ArrayTableItem<S, N>);
