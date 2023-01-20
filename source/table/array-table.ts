@@ -149,7 +149,7 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
    * Delete all items that match the query.
    * Returns the deleted items.
    */
-  async delete(query: Query<S, N>): Promise<ArrayTableData<S, N>> {
+  async delete(query?: Query<S, N>): Promise<ArrayTableData<S, N>> {
     return this.datastore.transaction(async () => {
       const table = await this.read();
       const deleted: ArrayTableData<S, N> = [];
