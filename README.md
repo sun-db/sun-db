@@ -126,8 +126,9 @@ npm install sun-db
 ```sh
 yarn add sun-db
 ```
-
-<img src="https://img.shields.io/badge/pnpm-F69220?logo=pnpm&logoColor=white" alt="PNPM" />
+<span>
+  <img src="https://img.shields.io/badge/pnpm-F69220?logo=pnpm&logoColor=white" alt="PNPM" />
+</span>
 
 ```sh
 pnpm add sun-db
