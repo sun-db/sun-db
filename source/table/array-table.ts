@@ -1,8 +1,11 @@
+/* eslint-disable max-lines */
 import z from "zod";
 import { JSONValue } from "types-json";
 import { Schema, TableName } from "../index.js";
 import { Table } from "./table.js";
 import { QueryOne, Query, DataQueryOne, DataQuery, PartialDataQuery, PartialDataQueryOne, find, filter, map } from "../query/index.js";
+import { JSONObject } from "read-json-safe";
+import { v4 as uuid } from "uuid";
 
 export type ArrayTableSchema = z.ZodArray<z.ZodSchema<JSONValue>>;
 
@@ -14,9 +17,21 @@ export type ArrayTableItem<S extends Schema, N extends ArrayTableName<S>> = S[N]
 ? z.infer<S[N]>[number]
 : never;
 
+export type InsertArrayTableItem<S extends Schema, N extends ArrayTableName<S>> = S[N] extends ArrayTableSchema
+? OrSymbol<z.infer<S[N]>[number]>
+: never;
+
+type OrSymbol<T extends JSONValue> = T extends JSONObject
+  ? { [K in keyof T]: T[K] | symbol; }
+  : T | symbol;
+
 export type ArrayTableData<S extends Schema, N extends ArrayTableName<S>> = ArrayTableItem<S, N>[];
 
 export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends Table<S, N> {
+  // serialID = Symbol("serialID");
+  uuid = Symbol("uuid");
+  // createdAt = Symbol("createdAt");
+  // updatedAt = Symbol("updatedAt");
   private async read(): Promise<ArrayTableData<S, N>> {
     const databaseData = await this.datastore.read();
     return (databaseData[this.name] as ArrayTableData<S, N>) ?? {};
@@ -25,6 +40,24 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
     const databaseData = await this.datastore.read();
     (databaseData[this.name] as ArrayTableData<S, N>) = data;
     return this.datastore.write(databaseData);
+  }
+  private fillItem(item: symbol | JSONValue): JSONValue {
+    if(typeof item === "symbol") {
+      if(item === this.uuid) {
+        return uuid();
+      } else {
+        throw new Error("Invalid symbol");
+      }
+    } else if(typeof item === "object" && item !== null && !Array.isArray(item)) {
+      return Object.entries(item).reduce((retval, [key, value]) => {
+        if(value !== undefined) {
+          retval[key] = this.fillItem(value);
+        }
+        return retval;
+      }, {} as JSONObject);
+    } else {
+      return item;
+    }
   }
   /**
    * Return true if the item exists.
