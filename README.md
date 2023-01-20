@@ -31,7 +31,7 @@ _DM me on [Twitter](https://twitter.com/bconnorwhite) if you have questions or s
 
 ## Introduction
 
-With SunDB, your datamodel is a Zod schema, and your database is a JSON file.
+With SunDB, your datamodel is a [Zod](https://github.com/colinhacks/zod#readme) schema, and your database is a JSON file.
 
 ### Why is this interesting?
 
