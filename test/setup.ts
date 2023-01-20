@@ -1,6 +1,7 @@
 import { tmpdir } from "os";
 import z from "zod";
 import mock, { restore } from "mock-fs";
+import { arrayTable, recordTable } from "../source/index.js";
 
 export const db = {
   users: {
@@ -32,16 +33,13 @@ export {
   restore
 };
 
-// const serialID = primary(z.number().int().positive());
-// const uuid = primary(z.string().uuid());
-
 export const schema = {
-  users: z.record(z.object({
+  users: recordTable({
     name: z.string(),
     age: z.number().int().positive()
-  })),
-  posts: z.array(z.object({
+  }),
+  posts: arrayTable({
     title: z.string(),
     content: z.string()
-  }))
+  })
 };
