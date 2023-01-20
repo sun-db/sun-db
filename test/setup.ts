@@ -15,8 +15,13 @@ export const db = {
     }
   },
   posts: [{
+    id: 1,
     title: "Hello World",
     content: "Lorem ipsum dolor sit amet"
+  }, {
+    id: 2,
+    title: "Second Post",
+    content: null
   }]
 };
 
@@ -39,7 +44,8 @@ export const schema = {
     age: z.number().int().positive()
   }),
   posts: arrayTable({
+    id: z.number().int().positive(),
     title: z.string(),
-    content: z.string()
+    content: z.union([z.string(), z.null()])
   })
 };

@@ -8,8 +8,9 @@ afterEach(restore);
 test("insertAll", async () => {
   const { client } = new SunDB("./data.json", schema);
   const data = [{
-    title: "Hello World",
-    content: "Hello World"
+    id: 3,
+    title: "Hello World 2",
+    content: "Hello World 2"
   }];
   await client.posts.insertAll(data);
   const posts = await client.posts.select();

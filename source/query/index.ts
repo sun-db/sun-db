@@ -2,16 +2,17 @@ import { JSONObject } from "read-json-safe";
 import { Schema } from "../index.js";
 import { ArrayTableData, ArrayTableItem, ArrayTableName } from "../table/array-table.js";
 import { Where, compare } from "./where.js";
+import { OrderByQuery, sort } from "./order-by.js";
 
 export type QueryOne<S extends Schema, N extends ArrayTableName<S>> = {
   where?: Where<S, N>;
-};
+} & OrderByQuery<S, N>;
 
 export type Query<S extends Schema, N extends ArrayTableName<S>> = {
   where?: Where<S, N>;
   limit?: number;
   offset?: number;
-};
+} & OrderByQuery<S, N>;
 
 export type DataQueryOne<S extends Schema, N extends ArrayTableName<S>> = QueryOne<S, N> & {
   data: ArrayTableItem<S, N>;
@@ -30,16 +31,18 @@ export type PartialDataQuery<S extends Schema, N extends ArrayTableName<S>> = Qu
 };
 
 export function find<S extends Schema, N extends ArrayTableName<S>>(array: ArrayTableData<S, N>, query?: QueryOne<S, N>) {
-  return array.find((item) => {
+  const sortedArray = sort(array, query);
+  return sortedArray.find((item) => {
     return compare(item, query?.where);
   });
 }
 
 export function filter<S extends Schema, N extends ArrayTableName<S>>(array: ArrayTableData<S, N>, query?: Query<S, N>) {
+  const sortedArray = sort(array, query);
   if(query === undefined) {
-    return array;
+    return sortedArray;
   } else if(query.limit === undefined && query.offset === undefined) {
-    return array.filter((item) => {
+    return sortedArray.filter((item) => {
       return compare(item, query.where);
     });
   } else {
@@ -66,10 +69,11 @@ export function map<S extends Schema, N extends ArrayTableName<S>>(
   query: Query<S, N> = {},
   fn: (item: ArrayTableItem<S, N>) => ArrayTableItem<S, N> | undefined
 ) {
+  const sortedArray = sort(array, query);
   let offset = query.offset ?? 0;
-  let limit = query.limit ?? array.length;
+  let limit = query.limit ?? sortedArray.length;
   const result: ArrayTableData<S, N> = [];
-  for(const item of array) {
+  for(const item of sortedArray) {
     if(compare(item, query.where)) {
       if(offset > 0) {
         offset -= 1;

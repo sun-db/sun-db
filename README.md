@@ -478,6 +478,33 @@ client.users.drop();
 
 Queries are used to filter records in array tables.
 
+### Order By
+
+The orderBy field allows you to sort records.
+
+```ts
+client.users.select({
+  orderBy: "name_asc"
+});
+```
+
+You can also sort by multiple fields.
+
+```ts
+client.users.select({
+  orderBy: ["name_asc", "id_desc"]
+});
+```
+
+| Operator | Description  |
+| -------- | ------------ |
+| `asc`    | Ascending    |
+| `desc`   | Descending   |
+| `asc_nullish_first` | Ascending, nullish values first |
+| `asc_nullish_last` | Ascending, nullish values last |
+| `desc_nullish_first` | Descending, nullish values first |
+| `desc_nullish_last` | Descending, nullish values last |
+
 ### Where
 
 The where field allows you to filter records.

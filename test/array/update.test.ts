@@ -18,5 +18,5 @@ test("update", async () => {
     }
   });
   const posts = await client.posts.select();
-  expect(posts).toEqual([{ ...db.posts[0], title: "Hello Worlds" }]);
+  expect(posts).toEqual([{ ...db.posts[0], title: "Hello Worlds" }, db.posts[1]]);
 });

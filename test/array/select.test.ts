@@ -20,7 +20,7 @@ test("select eq", async () => {
       }
     }
   });
-  expect(posts).toEqual(db.posts);
+  expect(posts).toEqual([db.posts[0]]);
 });
 
 test("select none", async () => {

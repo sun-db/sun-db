@@ -7,20 +7,19 @@ afterEach(restore);
 
 test("upsert", async () => {
   const { client } = new SunDB("./data.json", schema);
+  const data = {
+    id: 3,
+    title: "New Title",
+    content: "New Content"
+  };
   await client.posts.upsert({
     where: {
       title: {
         eq: "Does not exist"
       }
     },
-    data: {
-      title: "New Title",
-      content: "New Content"
-    }
+    data
   });
   const posts = await client.posts.select();
-  expect(posts).toEqual([...db.posts, {
-    title: "New Title",
-    content: "New Content"
-  }]);
+  expect(posts).toEqual([...db.posts, data]);
 });
