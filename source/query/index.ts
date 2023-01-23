@@ -1,6 +1,5 @@
-import { JSONObject } from "read-json-safe";
 import { Schema } from "../index.js";
-import { ArrayTableData, ArrayTableItem, ArrayTableName } from "../table/array-table.js";
+import { ArrayTableData, ArrayTableItem, ArrayTableItemInput, ArrayTableName } from "../table/array-table.js";
 import { Where, compare } from "./where.js";
 import { OrderByQuery, sort } from "./order-by.js";
 
@@ -15,19 +14,19 @@ export type Query<S extends Schema, N extends ArrayTableName<S>> = {
 } & OrderByQuery<S, N>;
 
 export type DataQueryOne<S extends Schema, N extends ArrayTableName<S>> = QueryOne<S, N> & {
-  data: ArrayTableItem<S, N>;
+  data: ArrayTableItemInput<S, N>;
 };
 
 export type DataQuery<S extends Schema, N extends ArrayTableName<S>> = Query<S, N> & {
-  data: ArrayTableItem<S, N>;
+  data: ArrayTableItemInput<S, N>;
 };
 
 export type PartialDataQueryOne<S extends Schema, N extends ArrayTableName<S>> = QueryOne<S, N> & {
-  data: ArrayTableItem<S, N> extends JSONObject ? Partial<ArrayTableItem<S, N>> : ArrayTableItem<S, N>;
+  data: Partial<ArrayTableItemInput<S, N>>;
 };
 
 export type PartialDataQuery<S extends Schema, N extends ArrayTableName<S>> = Query<S, N> & {
-  data: ArrayTableItem<S, N> extends JSONObject ? Partial<ArrayTableItem<S, N>> : ArrayTableItem<S, N>;
+  data: Partial<ArrayTableItemInput<S, N>>;
 };
 
 export function find<S extends Schema, N extends ArrayTableName<S>>(array: ArrayTableData<S, N>, query?: QueryOne<S, N>) {

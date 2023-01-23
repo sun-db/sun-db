@@ -21,7 +21,7 @@ export type ArrayTableItemInput<S extends Schema, N extends ArrayTableName<S>> =
 ? OrSymbol<z.infer<S[N]>[number]>
 : never;
 
-type OrSymbol<T extends JSONValue> = T extends JSONObject
+export type OrSymbol<T extends JSONValue> = T extends JSONObject
   ? { [K in keyof T]: T[K] extends JSONValue ? OrSymbol<T[K]> : never; }
   : T | symbol;
 
@@ -116,10 +116,12 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
   /**
    * Insert multiple items into the table.
    */
-  async insertAll(items: ArrayTableItem<S, N>[]): Promise<void> {
+  async insertAll(items: ArrayTableItemInput<S, N>[]): Promise<void> {
     await this.datastore.transaction(async () => {
       const table = await this.read();
-      table.push(...items);
+      const promises = items.map((item) => this.hydrateInput(item as symbol | JSONValue)) as Promise<ArrayTableItem<S, N>>[];
+      const values = await Promise.all(promises);
+      table.push(...values);
       return this.write(table);
     });
   }
@@ -131,14 +133,15 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
     return this.datastore.transaction(async () => {
       const table = await this.read();
       const updated: ArrayTableData<S, N> = [];
+      const value = await this.hydrateInput(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
       const result = map(table, query, (item) => {
-        const transform = typeof item === "object" && item !== null ? Object.assign(item, query.data) : (query.data as ArrayTableItem<S, N>);
+        const transform = typeof item === "object" && item !== null ? Object.assign(item, value) : (value as ArrayTableItem<S, N>);
         updated.push(transform);
         return transform;
       });
       if(updated.length === 0) {
-        result.push(query.data);
-        updated.push(query.data);
+        result.push(value);
+        updated.push(value);
       }
       await this.write(result);
       return updated;
@@ -153,14 +156,15 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
       const table = await this.read();
       // eslint-disable-next-line no-undef-init
       let updated: ArrayTableItem<S, N> | undefined = undefined;
+      const value = await this.hydrateInput(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
       const result = map(table, { ...query, limit: 1 }, (item) => {
-        const transform = typeof item === "object" && item !== null ? Object.assign(item, query.data) : (query.data as ArrayTableItem<S, N>);
+        const transform = typeof item === "object" && item !== null ? Object.assign(item, value) : (value as ArrayTableItem<S, N>);
         updated = transform;
         return transform;
       });
       if(updated === undefined) {
-        result.push(query.data);
-        updated = query.data;
+        result.push(value);
+        updated = value;
       }
       await this.write(result);
       return updated;
@@ -174,8 +178,9 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
     return this.datastore.transaction(async () => {
       const table = await this.read();
       const updated: ArrayTableData<S, N> = [];
+      const value = await this.hydrateInput(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
       const result = map(table, query, (item) => {
-        const transform = typeof item === "object" && item !== null ? Object.assign(item, query.data) : (query.data as ArrayTableItem<S, N>);
+        const transform = typeof item === "object" && item !== null ? Object.assign(item, value) : (value as ArrayTableItem<S, N>);
         updated.push(transform);
         return transform;
       });
@@ -192,8 +197,9 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
       const table = await this.read();
       // eslint-disable-next-line no-undef-init
       let updated: ArrayTableItem<S, N> | undefined = undefined;
+      const value = await this.hydrateInput(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
       const result = map(table, { ...query, limit: 1 }, (item) => {
-        const transform = typeof item === "object" && item !== null ? Object.assign(item, query.data) : (query.data as ArrayTableItem<S, N>);
+        const transform = typeof item === "object" && item !== null ? Object.assign(item, value) : (value as ArrayTableItem<S, N>);
         updated = transform;
         return transform;
       });

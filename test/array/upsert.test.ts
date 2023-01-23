@@ -23,3 +23,22 @@ test("upsert", async () => {
   const posts = await client.posts.select();
   expect(posts).toEqual([...db.posts, data]);
 });
+
+test("upsert serialID", async () => {
+  const { client } = new SunDB("./data.json", schema);
+  const data = {
+    id: client.posts.serialID,
+    title: "New Title",
+    content: "New Content"
+  };
+  await client.posts.upsert({
+    where: {
+      title: {
+        eq: "Does not exist"
+      }
+    },
+    data
+  });
+  const posts = await client.posts.select();
+  expect(posts).toEqual([...db.posts, { ...data, id: "3" }]);
+});
