@@ -64,7 +64,6 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
       } else if(item === this.now) {
         return new Date().toISOString();
       } else if(item === this.serialID) {
-        console.log(path);
         return this.generateSerialID(path);
       } else {
         throw new Error("Invalid symbol");
