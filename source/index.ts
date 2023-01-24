@@ -1,19 +1,6 @@
-import { Datastore, DatastoreOptions } from "./datastore.js";
-import { TableSchema, TableData, ArrayTable, RecordTable, ArrayTableName, RecordTableName } from "./table/index.js";
-import { Metadata } from "./metadata.js";
 import { z } from "zod";
-
-export type Schema = {
-  [K in keyof Metadata]?: never;
-} & {
-  [tableName: string]: TableSchema;
-};
-
-export type TableName<S extends Schema> = Extract<keyof S, string>;
-
-export type DatabaseData<S extends Schema> = {
-  [K in TableName<S>]: TableData<S, K>;
-} & Metadata;
+import { Datastore, DatastoreOptions, Schema, DatabaseData, TableName } from "./datastore/index.js";
+import { ArrayTable, RecordTable, ArrayTableName, RecordTableName } from "./table/index.js";
 
 /**
  * A migration function.
@@ -26,10 +13,10 @@ export type Migrations<S extends Schema> = {
 };
 
 export type SunDBClient<S extends Schema> = {
-  [K in TableName<S>]: K extends ArrayTableName<S>
-    ? ArrayTable<S, K>
-    : K extends RecordTableName<S>
-      ? RecordTable<S, K>
+  [N in TableName<S>]: N extends ArrayTableName<S>
+    ? ArrayTable<S, N>
+    : N extends RecordTableName<S>
+      ? RecordTable<S, N>
       : never;
 };
 
@@ -140,3 +127,8 @@ export class SunDB<S extends Schema> {
 }
 
 export { arrayTable, recordTable } from "./zod.js";
+
+export type {
+  Schema,
+  TableName
+};

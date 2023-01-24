@@ -16,9 +16,9 @@ type RecordValue<R extends Record<string, JSONValue>> = R extends Record<string,
   ? V
   : never;
 
-export type RecordTableName<S extends Schema> = {
+export type RecordTableName<S extends Schema> = Extract<{
   [N in TableName<S>]: S[N] extends RecordTableSchema ? N : never;
-}[TableName<S>];
+}[TableName<S>], TableName<S>>;
 
 export type RecordTableKey<S extends Schema, N extends RecordTableName<S>> = S[N] extends RecordTableSchema
   ? RecordKey<z.infer<S[N]>>
@@ -32,7 +32,7 @@ export type RecordTableData<S extends Schema, N extends RecordTableName<S>> = {
   [Key in RecordTableKey<S, N>]: RecordTableValue<S, N>;
 };
 
-export class RecordTable<S extends Schema, N extends RecordTableName<S>> extends Table<S, N> {
+export class RecordTable<S extends Schema, N extends TableName<S> & RecordTableName<S>> extends Table<S, N> {
   private async read(): Promise<RecordTableData<S, N>> {
     const databaseData = await this.datastore.read();
     return (databaseData[this.name] as RecordTableData<S, N>) ?? {};

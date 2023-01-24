@@ -3,13 +3,7 @@ import { getLock, Lock } from "p-lock";
 import { readJSON } from "read-json-safe";
 import { writeJSON } from "write-json-safe";
 import { removeFile } from "remove-file-safe";
-import { Schema, TableName } from "./index.js";
-import { isMetadataKey, Metadata } from "./metadata.js";
-import { TableData, TableSchema } from "./table/index.js";
-
-export type DatabaseData<S extends Schema> = {
-  [K in TableName<S>]: TableData<S, K>;
-} & Metadata;
+import { Schema, DatabaseData, getDatabaseSchema, listTables, TableName } from "./schema.js";
 
 export type DatastoreOptions = {
   /**
@@ -20,7 +14,7 @@ export type DatastoreOptions = {
 
 export class Datastore<S extends Schema> {
   private lock: Lock;
-  private cache: DatabaseData<S> | undefined = undefined;
+  private cache: DatabaseData<S> | undefined;
   path: string;
   schema: S;
   options: DatastoreOptions;
@@ -33,23 +27,16 @@ export class Datastore<S extends Schema> {
       ...options
     };
   }
-  private databaseSchema() {
-    return z.object(
-      Object.keys(this.schema).reduce((retval, tableName) => {
-        retval[(tableName as TableName<S>)] = this.schema[tableName] as TableSchema;
-        return retval;
-      }, {} as {
-        [K in TableName<S>]: TableSchema;
-      })
-    );
+  tables(): TableName<S>[] {
+    return listTables(this.schema);
   }
   private emptyDatabaseData(): DatabaseData<S> {
     return this.tables().reduce((retval, tableName) => {
       const tableSchema = this.schema[tableName];
       if(tableSchema instanceof z.ZodArray) {
-        (retval[tableName] as any) = [];
+        (retval[tableName] as []) = [];
       } else if(tableSchema instanceof z.ZodRecord) {
-        (retval[tableName] as any) = {};
+        retval[tableName] = {} as typeof retval[typeof tableName];
       }
       return retval;
     }, {} as DatabaseData<S>);
@@ -58,9 +45,6 @@ export class Datastore<S extends Schema> {
     const databaseData = await this.read();
     // eslint-disable-next-line no-underscore-dangle
     return databaseData._version ?? 0;
-  }
-  tables(): TableName<S>[] {
-    return Object.keys(this.schema).filter((name) => !isMetadataKey(name)) as TableName<S>[];
   }
   async transaction<T>(callback: () => Promise<T>): Promise<T> {
     const release = await this.lock();
@@ -74,8 +58,8 @@ export class Datastore<S extends Schema> {
       return this.cache;
     } else {
       const json = await readJSON(this.path);
-      const result = this.databaseSchema().safeParse(json);
-      const data = result.success ? result.data as DatabaseData<S> : this.emptyDatabaseData();
+      const result = getDatabaseSchema(this.schema).safeParse(json);
+      const data = (result.success ? (result.data as DatabaseData<S>) : this.emptyDatabaseData());
       if(!this.options.noCache) {
         this.cache = data;
       }
@@ -94,7 +78,7 @@ export class Datastore<S extends Schema> {
     this.cache = undefined;
   }
   async drop(): Promise<void> {
-    await this.write({} as DatabaseData<S>);
+    await this.write({});
     this.cache = undefined;
   }
   async erase(): Promise<void> {
@@ -102,3 +86,9 @@ export class Datastore<S extends Schema> {
     this.cache = undefined;
   }
 }
+
+export type {
+  Schema,
+  DatabaseData,
+  TableName
+};

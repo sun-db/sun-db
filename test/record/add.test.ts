@@ -16,6 +16,25 @@ test("add", async () => {
   expect(user).toEqual(["3", data]);
 });
 
+test("add undefined age", async () => {
+  const { client } = new SunDB("./data.json", schema);
+  const data = {
+    name: "New User",
+    age: undefined
+  };
+  const user = await client.users.add("3", data);
+  expect(user).toEqual(["3", data]);
+});
+
+test("add no age", async () => {
+  const { client } = new SunDB("./data.json", schema);
+  const data = {
+    name: "New User"
+  };
+  const user = await client.users.add("3", data);
+  expect(user).toEqual(["3", data]);
+});
+
 test("already exists", async () => {
   const { client } = new SunDB("./data.json", schema);
   const user = await client.users.add("1", {

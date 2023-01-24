@@ -1,13 +1,13 @@
-import { Schema, TableName } from "../index.js";
-import { Datastore } from "../datastore.js";
+import { Datastore, Schema, TableName } from "../datastore/index.js";
+import { symbols } from "../symbol.js";
 
 export class Table<S extends Schema, N extends TableName<S>> {
   protected datastore: Datastore<S>;
   name: N;
   // Symbols
-  uuid = Symbol("uuid");
-  serialID = Symbol("serialID");
-  now = Symbol("now");
+  uuid = symbols.uuid();
+  serialID = symbols.serialID();
+  now = symbols.now();
   constructor(datastore: Datastore<S>, name: N) {
     this.datastore = datastore;
     this.name = name;

@@ -1,22 +1,23 @@
 import { JSONValue, JSONArray, JSONObject } from "read-json-safe";
+import { OptionalJSONValue, Optional } from "../utils.js";
 import { Schema } from "../index.js";
 import { ArrayTableItem, ArrayTableName } from "../table/array-table.js";
 
 export type JSONPrimitive = boolean | string | number | null;
 
-export type EqualityComparison<V extends JSONPrimitive> = {
+export type EqualityComparison<V extends Optional<JSONPrimitive>> = {
   eq?: V;
   neq?: V;
 };
 
-export type MagnitudeComparison<V extends string | number> = {
+export type MagnitudeComparison<V extends Optional<string | number>> = {
   gt?: V;
   gte?: V;
   lt?: V;
   lte?: V;
 };
 
-export type ListComparison<V extends JSONPrimitive> = {
+export type ListComparison<V extends Optional<JSONPrimitive>> = {
   in?: V[];
   nin?: V[];
 };
@@ -36,7 +37,7 @@ export type NullComparison<V extends null> =
   & EqualityComparison<V>
   & ListComparison<V>;
 
-export type BooleanComparison<V extends boolean> =
+export type BooleanComparison<V extends Optional<boolean>> =
   & EqualityComparison<V>
   & ListComparison<V>;
 
@@ -56,11 +57,11 @@ export type ArrayComparison<V extends JSONArray> = {
   ncontains?: Comparison<V[number]>;
 };
 
-export type ObjectComparison<V extends JSONObject> = {
+export type ObjectComparison<V extends Optional<JSONObject>> = {
   [K in keyof V]?: V[K] extends JSONValue ? Comparison<V[K]> : never;
 };
 
-export type Comparison<V extends JSONValue> = V extends boolean
+export type Comparison<V extends OptionalJSONValue> = V extends Optional<boolean>
   ? BooleanComparison<V>
   : V extends number
     ? NumberComparison<V>
@@ -153,21 +154,25 @@ function compareArray<V extends JSONArray>(value: V, where: ArrayComparison<V>):
   return result;
 }
 
-function compareObject<V extends JSONObject>(value: V, where: ObjectComparison<V>): boolean {
-  // eslint-disable-next-line guard-for-in
-  for(const fieldName in where) {
-    const fieldValue = value[fieldName];
-    if(fieldValue !== undefined) {
-      const comparison = where[fieldName] as Comparison<NonNullable<V[Extract<keyof V, string>]>>;
-      if(compare(fieldValue, comparison) === false) {
-        return false;
+function compareObject<V extends Optional<JSONObject>>(value: V, where: ObjectComparison<V>): boolean {
+  if(value !== undefined) {
+    // eslint-disable-next-line guard-for-in
+    for(const fieldName in where) {
+      const fieldValue = value[fieldName];
+      if(fieldValue !== undefined) {
+        const comparison = where[fieldName] as Comparison<NonNullable<V[Extract<keyof V, string>]>>;
+        if(compare(fieldValue, comparison) === false) {
+          return false;
+        }
       }
     }
+    return true;
+  } else {
+    return false;
   }
-  return true;
 }
 
-export function compare<V extends JSONValue>(value: V, where?: Comparison<V>): boolean {
+export function compare<V extends OptionalJSONValue>(value: V, where?: Comparison<V>): boolean {
   if(where === undefined) {
     return true;
   } else if(typeof value === "boolean") {

@@ -1,17 +1,18 @@
 /* eslint-disable max-lines */
 import z from "zod";
-import { JSONValue } from "types-json";
+import { JSONValue, JSONObject } from "types-json";
+import { v4 as uuid } from "uuid";
 import { Schema, TableName } from "../index.js";
 import { Table } from "./table.js";
 import { QueryOne, Query, DataQueryOne, DataQuery, PartialDataQuery, PartialDataQueryOne, find, filter, map } from "../query/index.js";
-import { JSONObject } from "read-json-safe";
-import { v4 as uuid } from "uuid";
+import { OrSymbol, valueAtPath } from "../symbol.js";
+import { OptionalJSONValue } from "../utils.js";
 
-export type ArrayTableSchema = z.ZodArray<z.ZodSchema<JSONValue>>;
+export type ArrayTableSchema = z.ZodArray<z.ZodSchema<OptionalJSONValue>>;
 
-export type ArrayTableName<S extends Schema> = {
+export type ArrayTableName<S extends Schema> = Extract<{
   [N in TableName<S>]: S[N] extends ArrayTableSchema ? N : never;
-}[TableName<S>];
+}[TableName<S>], TableName<S>>;
 
 export type ArrayTableItem<S extends Schema, N extends ArrayTableName<S>> = S[N] extends ArrayTableSchema
 ? z.infer<S[N]>[number]
@@ -21,22 +22,7 @@ export type ArrayTableItemInput<S extends Schema, N extends ArrayTableName<S>> =
 ? OrSymbol<z.infer<S[N]>[number]>
 : never;
 
-export type OrSymbol<T extends JSONValue> = T extends JSONObject
-  ? { [K in keyof T]: T[K] extends JSONValue ? OrSymbol<T[K]> : never; }
-  : T | symbol;
-
 export type ArrayTableData<S extends Schema, N extends ArrayTableName<S>> = ArrayTableItem<S, N>[];
-
-function valueAtPath(parent: JSONValue, path: string[] = []): JSONValue | undefined {
-  const field = path[0];
-  if(field === undefined) {
-    return parent;
-  } else if(typeof parent === "object" && parent !== null) {
-    return valueAtPath((parent as any)[field], path.slice(1));
-  } else {
-    return undefined;
-  }
-}
 
 export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends Table<S, N> {
   private async read(): Promise<ArrayTableData<S, N>> {

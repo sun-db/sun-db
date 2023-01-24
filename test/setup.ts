@@ -41,7 +41,7 @@ export {
 export const schema = {
   users: recordTable({
     name: z.string(),
-    age: z.number().int().positive()
+    age: z.number().int().positive().optional()
   }),
   posts: arrayTable({
     id: z.number().int().positive(),

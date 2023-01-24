@@ -1,8 +1,8 @@
 import z from "zod";
-import { JSONValue } from "types-json";
+import { OptionalJSONValue } from "./utils.js";
 
-type InnerSchema = z.ZodType<JSONValue> | {
-  [key: string]: z.ZodType<JSONValue>;
+type InnerSchema = z.ZodType<OptionalJSONValue> | {
+  [key: string]: z.ZodType<OptionalJSONValue>;
 };
 
 type TableItemResult<I extends InnerSchema> = I extends z.ZodRawShape ? z.ZodObject<I> : I;
