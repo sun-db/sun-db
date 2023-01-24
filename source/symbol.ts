@@ -1,5 +1,6 @@
+import { randomUUID } from "node:crypto";
 import { JSONObject } from "types-json";
-import { OptionalJSONValue } from "./utils.js";
+import { OptionalJSONValue, OptionalJSONArray } from "./utils.js";
 
 export type OrSymbol<T extends OptionalJSONValue> = T extends JSONObject
   ? { [K in keyof T]: T[K] extends OptionalJSONValue ? OrSymbol<T[K]> : never; }
@@ -11,7 +12,7 @@ export const symbols = {
   now: () => Symbol("now")
 };
 
-export function valueAtPath(parent: OptionalJSONValue, path: string[] = []): OptionalJSONValue {
+function valueAtPath(parent: OptionalJSONValue, path: string[] = []): OptionalJSONValue {
   const field = path[0];
   if(field === undefined) {
     return parent;
@@ -20,4 +21,28 @@ export function valueAtPath(parent: OptionalJSONValue, path: string[] = []): Opt
   } else {
     return undefined;
   }
+}
+
+export function now(): string {
+  return new Date().toISOString();
+}
+
+export function uuid(data: OptionalJSONArray, path: string[] = []): string {
+  let result;
+  while(result === undefined) {
+    const attempt = randomUUID();
+    if(data.every((item) => valueAtPath(item, path) !== attempt)) {
+      result = attempt;
+    }
+  }
+  return result;
+}
+
+export function serialID(data: OptionalJSONArray, path: string[] = []): string {
+  const ids = data.map((item) => {
+    const value = valueAtPath(item, path);
+    return value ? parseInt(value.toString()) : NaN;
+  }).filter((id) => !isNaN(id));
+  const max = Math.max(0, ...ids);
+  return (max + 1).toString();
 }

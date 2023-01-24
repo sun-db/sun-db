@@ -1,6 +1,6 @@
 import z from "zod";
 import { JSONValue } from "types-json";
-import { v4 as uuid } from "uuid";
+import { uuid, now, serialID } from "../symbol.js";
 import { Schema, TableName } from "../index.js";
 import { Table } from "./table.js";
 
@@ -42,30 +42,16 @@ export class RecordTable<S extends Schema, N extends TableName<S> & RecordTableN
     (databaseData[this.name] as RecordTableData<S, N>) = data;
     return this.datastore.write(databaseData);
   }
-  private async generateSerialID(): Promise<RecordTableKey<S, N>> {
-    const table = await this.read();
-    const max = Math.max(0, ...Object.keys(table).map((x) => parseInt(x)).filter((n) => !isNaN(n)));
-    return (max + 1).toString() as RecordTableKey<S, N>;
-  }
-  private async generateUUID(): Promise<RecordTableKey<S, N>> {
-    let key: RecordTableKey<S, N> | undefined;
-    while(key === undefined) {
-      const attempt = uuid() as RecordTableKey<S, N>;
-      const collision = await this.has(attempt);
-      if(!collision) {
-        key = attempt;
-      }
-    }
-    return key;
-  }
-  private async hydrate(key: symbol | RecordTableKey<S, N>): Promise<RecordTableKey<S, N>> {
+  private async hydrateSymbol(key: symbol | RecordTableKey<S, N>): Promise<RecordTableKey<S, N>> {
     if(typeof key === "symbol") {
       if(key === this.uuid) {
-        return this.generateUUID();
+        const table = await this.read();
+        return uuid(Object.keys(table)) as RecordTableKey<S, N>;
       } else if(key === this.serialID) {
-        return this.generateSerialID();
+        const table = await this.read();
+        return serialID(Object.keys(table)) as RecordTableKey<S, N>;
       } else if(key === this.now) {
-        return new Date().toISOString() as RecordTableKey<S, N>;
+        return now() as RecordTableKey<S, N>;
       } else {
         throw new Error("Invalid symbol");
       }
@@ -95,7 +81,7 @@ export class RecordTable<S extends Schema, N extends TableName<S> & RecordTableN
   async add(key: RecordTableKey<S, N> | symbol, value: RecordTableValue<S, N>): Promise<[RecordTableKey<S, N>, RecordTableValue<S, N>] | undefined> {
     return this.datastore.transaction(async () => {
       const table = await this.read();
-      const hydratedKey = await this.hydrate(key);
+      const hydratedKey = await this.hydrateSymbol(key);
       if(table[hydratedKey] === undefined) {
         table[hydratedKey] = value;
         await this.write(table);

@@ -1,11 +1,10 @@
 /* eslint-disable max-lines */
 import z from "zod";
 import { JSONValue, JSONObject } from "types-json";
-import { v4 as uuid } from "uuid";
 import { Schema, TableName } from "../index.js";
 import { Table } from "./table.js";
 import { QueryOne, Query, DataQueryOne, DataQuery, PartialDataQuery, PartialDataQueryOne, find, filter, map } from "../query/index.js";
-import { OrSymbol, valueAtPath } from "../symbol.js";
+import { OrSymbol, now, uuid, serialID } from "../symbol.js";
 import { OptionalJSONValue } from "../utils.js";
 
 export type ArrayTableSchema = z.ZodArray<z.ZodSchema<OptionalJSONValue>>;
@@ -34,23 +33,14 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
     (databaseData[this.name] as ArrayTableData<S, N>) = data;
     return this.datastore.write(databaseData);
   }
-  private async generateSerialID(path: string[]): Promise<string> {
-    const data = await this.read();
-    const ids = data.map((item) => {
-      const value = valueAtPath(item, path);
-      return value ? parseInt(value.toString()) : NaN;
-    }).filter((id) => !isNaN(id));
-    const max = Math.max(0, ...ids);
-    return (max + 1).toString();
-  }
-  private async hydrateInput(item: symbol | JSONValue, path: string[] = []): Promise<JSONValue> {
+  private async hydrateSymbols(item: symbol | JSONValue, path: string[] = []): Promise<JSONValue> {
     if(typeof item === "symbol") {
-      if(item === this.uuid) {
-        return uuid();
-      } else if(item === this.now) {
-        return new Date().toISOString();
+      if(item === this.now) {
+        return now();
+      } else if(item === this.uuid) {
+        return uuid(await this.read(), path);
       } else if(item === this.serialID) {
-        return this.generateSerialID(path);
+        return serialID(await this.read(), path);
       } else {
         throw new Error("Invalid symbol");
       }
@@ -58,7 +48,7 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
       return Object.entries(item).reduce(async (retval, [key, value]) => {
         return retval.then(async (result) => {
           if(value !== undefined) {
-            result[key] = await this.hydrateInput(value, [...path, key]);
+            result[key] = await this.hydrateSymbols(value, [...path, key]);
           }
           return result;
         });
@@ -94,7 +84,7 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
   async insert(item: ArrayTableItemInput<S, N>): Promise<void> {
     await this.datastore.transaction(async () => {
       const table = await this.read();
-      const value = await this.hydrateInput(item as symbol | JSONValue) as ArrayTableItem<S, N>;
+      const value = await this.hydrateSymbols(item as symbol | JSONValue) as ArrayTableItem<S, N>;
       table.push(value);
       return this.write(table);
     });
@@ -105,7 +95,7 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
   async insertAll(items: ArrayTableItemInput<S, N>[]): Promise<void> {
     await this.datastore.transaction(async () => {
       const table = await this.read();
-      const promises = items.map((item) => this.hydrateInput(item as symbol | JSONValue)) as Promise<ArrayTableItem<S, N>>[];
+      const promises = items.map((item) => this.hydrateSymbols(item as symbol | JSONValue)) as Promise<ArrayTableItem<S, N>>[];
       const values = await Promise.all(promises);
       table.push(...values);
       return this.write(table);
@@ -119,7 +109,7 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
     return this.datastore.transaction(async () => {
       const table = await this.read();
       const updated: ArrayTableData<S, N> = [];
-      const value = await this.hydrateInput(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
+      const value = await this.hydrateSymbols(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
       const result = map(table, query, (item) => {
         const transform = typeof item === "object" && item !== null ? Object.assign(item, value) : (value as ArrayTableItem<S, N>);
         updated.push(transform);
@@ -142,7 +132,7 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
       const table = await this.read();
       // eslint-disable-next-line no-undef-init
       let updated: ArrayTableItem<S, N> | undefined = undefined;
-      const value = await this.hydrateInput(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
+      const value = await this.hydrateSymbols(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
       const result = map(table, { ...query, limit: 1 }, (item) => {
         const transform = typeof item === "object" && item !== null ? Object.assign(item, value) : (value as ArrayTableItem<S, N>);
         updated = transform;
@@ -164,7 +154,7 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
     return this.datastore.transaction(async () => {
       const table = await this.read();
       const updated: ArrayTableData<S, N> = [];
-      const value = await this.hydrateInput(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
+      const value = await this.hydrateSymbols(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
       const result = map(table, query, (item) => {
         const transform = typeof item === "object" && item !== null ? Object.assign(item, value) : (value as ArrayTableItem<S, N>);
         updated.push(transform);
@@ -183,7 +173,7 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
       const table = await this.read();
       // eslint-disable-next-line no-undef-init
       let updated: ArrayTableItem<S, N> | undefined = undefined;
-      const value = await this.hydrateInput(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
+      const value = await this.hydrateSymbols(query.data as symbol | JSONValue) as ArrayTableItem<S, N>;
       const result = map(table, { ...query, limit: 1 }, (item) => {
         const transform = typeof item === "object" && item !== null ? Object.assign(item, value) : (value as ArrayTableItem<S, N>);
         updated = transform;
