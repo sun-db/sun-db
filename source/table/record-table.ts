@@ -1,18 +1,18 @@
 import z from "zod";
-import { JSONValue } from "types-json";
+import { NestedOptionalJSONValue } from "types-json";
 import { uuid, now, serialID } from "../symbol.js";
 import { Schema, TableName } from "../index.js";
 import { Table } from "./table.js";
 
-export type RecordTableSchema = z.ZodRecord<z.ZodString, z.ZodSchema<JSONValue>>;
+export type RecordTableSchema = z.ZodRecord<z.ZodString, z.ZodSchema<NestedOptionalJSONValue>>;
 
-type RecordKey<R extends Record<string, JSONValue>> = R extends Record<infer K, JSONValue>
+type RecordKey<R extends Record<string, NestedOptionalJSONValue>> = R extends Record<infer K, NestedOptionalJSONValue>
   ? K extends string
     ? K
     : never
   : never;
 
-type RecordValue<R extends Record<string, JSONValue>> = R extends Record<string, infer V>
+type RecordValue<R extends Record<string, NestedOptionalJSONValue>> = R extends Record<string, infer V>
   ? V
   : never;
 

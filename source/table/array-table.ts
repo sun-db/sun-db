@@ -1,12 +1,12 @@
 /* eslint-disable max-lines */
 import z from "zod";
-import { JSONValue, JSONObject, OptionalJSONValue } from "types-json";
+import { JSONValue, JSONObject, NestedOptionalJSONValue } from "types-json";
 import { Schema, TableName } from "../index.js";
 import { Table } from "./table.js";
 import { QueryOne, Query, DataQueryOne, DataQuery, PartialDataQuery, PartialDataQueryOne, find, filter, map } from "../query/index.js";
 import { OrSymbol, now, uuid, serialID } from "../symbol.js";
 
-export type ArrayTableSchema = z.ZodArray<z.ZodSchema<OptionalJSONValue>>;
+export type ArrayTableSchema = z.ZodArray<z.ZodSchema<NestedOptionalJSONValue>>;
 
 export type ArrayTableName<S extends Schema> = Extract<{
   [N in TableName<S>]: S[N] extends ArrayTableSchema ? N : never;
