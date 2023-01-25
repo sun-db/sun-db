@@ -56,7 +56,7 @@ Instead of wasting time building out a database with a complex datamodel, SunDB 
 ## Contents
 
 - [Installation](#installation)
-- [Setup](#setup)
+- [Basic Usage](#basic-usage)
 - [Tables](#tables)
   - [Record Tables](#record-tables)
     - [has](#has)
@@ -105,8 +105,9 @@ Instead of wasting time building out a database with a complex datamodel, SunDB 
   - [erase](#erase)
   - [version](#version)
   - [migrate](#migrate)
+- [License](#license)
 
-## Installation
+<h2 id="installation"><div align="right"><a href="#top">🔝</a></div>Installation</h2>
 
 <a href="https://www.npmjs.com/package/sun-db">
   <img src="https://img.shields.io/badge/npm-CB3837?logo=npm&logoColor=white" alt="NPM" />
@@ -131,7 +132,7 @@ yarn add sun-db
 pnpm add sun-db
 ```
 
-## Basic Usage
+<h2 id="basic-usage"><div align="right"><a href="#top">🔝</a></div>Basic Usage</h2>
 
 ```ts
 import { SunDB } from "sun-db";
@@ -161,7 +162,7 @@ const user = client.users.select({
 });
 ```
 
-## Tables
+<h2 id="tables"><div align="right"><a href="#top">🔝</a></div>Tables</h2>
 
 A SunDB is a JSON object, where each field is a table.
 
@@ -474,7 +475,7 @@ client.users.drop();
 | `rename`      | `rename`                |
 | `drop`        | `drop`                  |
 
-## Queries
+<h2 id="queries"><div align="right"><a href="#top">🔝</a></div>Queries</h2>
 
 Queries are used to filter records in array tables.
 
@@ -637,7 +638,7 @@ client.users.select({
 });
 ```
 
-## Database
+<h2 id="database"><div align="right"><a href="#top">🔝</a></div>Database</h2>
 
 ### Path
 
@@ -724,7 +725,7 @@ await db.migrate(2, {
 
 <!--BEGIN FOOTER-->
 
-<h2 id="license">License <a href="https://opensource.org/licenses/MIT"><img align="right" alt="license" src="https://img.shields.io/npm/l/sun-db.svg"></a></h2>
+<h2 id="license"><div align="right"><a href="#top">🔝</a></div><br />License <a href="https://opensource.org/licenses/MIT"><img align="right" alt="license" src="https://img.shields.io/npm/l/sun-db.svg"></a></h2>
 
 [MIT](https://opensource.org/licenses/MIT) - _MIT License_
 <!--END FOOTER-->
