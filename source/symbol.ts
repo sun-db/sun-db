@@ -1,8 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { JSONObject } from "types-json";
-import { OptionalJSONValue, OptionalJSONArray } from "./utils.js";
+import { OptionalJSONValue, NestedOptionalJSONArray, NestedOptionalJSONObject } from "types-json";
 
-export type OrSymbol<T extends OptionalJSONValue> = T extends JSONObject
+export type OrSymbol<T extends OptionalJSONValue> = T extends NestedOptionalJSONObject
   ? { [K in keyof T]: T[K] extends OptionalJSONValue ? OrSymbol<T[K]> : never; }
   : T | symbol;
 
@@ -27,7 +26,7 @@ export function now(): string {
   return new Date().toISOString();
 }
 
-export function uuid(data: OptionalJSONArray, path: string[] = []): string {
+export function uuid(data: NestedOptionalJSONArray, path: string[] = []): string {
   let result;
   while(result === undefined) {
     const attempt = randomUUID();
@@ -38,7 +37,7 @@ export function uuid(data: OptionalJSONArray, path: string[] = []): string {
   return result;
 }
 
-export function serialID(data: OptionalJSONArray, path: string[] = []): string {
+export function serialID(data: NestedOptionalJSONArray, path: string[] = []): string {
   const ids = data.map((item) => {
     const value = valueAtPath(item, path);
     return value ? parseInt(value.toString()) : NaN;

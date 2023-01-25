@@ -1,5 +1,5 @@
 import z from "zod";
-import { OptionalJSONValue } from "../utils.js";
+import { OptionalJSONValue } from "types-json";
 
 // Metadata
 

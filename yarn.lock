@@ -4361,13 +4361,6 @@ json-stringify-safe@^5.0.1:
   resolved "https://registry.yarnpkg.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
   integrity sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==
 
-json-to-zod@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/json-to-zod/-/json-to-zod-1.1.2.tgz#626d4432f329c51089120858c9404234567dda1b"
-  integrity sha512-6YDvnY8oOS5v1H1CWUvfNJkCI3SGbmCwWMytndPHzwyrr1K9ayNXL4rvOSf7WCy3c3Pxu2brvt4idZCkKh9gfQ==
-  dependencies:
-    prettier "^2.3.2"
-
 json5@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/json5/-/json5-1.0.2.tgz#63d98d60f21b313b77c4d6da18bfa69d80e1d593"
@@ -5369,11 +5362,6 @@ prepend-http@^2.0.0:
   resolved "https://registry.yarnpkg.com/prepend-http/-/prepend-http-2.0.0.tgz#e92434bfa5ea8c19f41cdfd401d741a3c819d897"
   integrity sha512-ravE6m9Atw9Z/jjttRUZ+clIXogdghyZAuWJ3qEzjT+jI/dL1ifAqhZeC5VHzQp1MSt1+jxKkFNemj/iO7tVUA==
 
-prettier@^2.3.2:
-  version "2.8.3"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.8.3.tgz#ab697b1d3dd46fb4626fbe2f543afe0cc98d8632"
-  integrity sha512-tJ/oJ4amDihPoufT5sM0Z1SKEuKay8LfVAMlbbhnnkvt6BUserZylqo2PN+p9KeljLr0OHa2rXHU1T8reeoTrw==
-
 pretty-format@^29.3.1:
   version "29.3.1"
   resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-29.3.1.tgz#1841cac822b02b4da8971dacb03e8a871b4722da"
@@ -6003,12 +5991,12 @@ stringify-json-object@^1.0.5, stringify-json-object@^1.0.7:
   dependencies:
     types-json "^1.2.2"
 
-stringify-json-object@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/stringify-json-object/-/stringify-json-object-2.0.0.tgz#22e116249f6761ea7b9cf7ba1fb2435c89d5137a"
-  integrity sha512-1kptJ8Oe889KYHabpa9MyIQyVD8miSasv8IN9v3CFYVI6xufbTkXJjzRhYaf/KHlz6OhS7um7tVmWhctF8dISQ==
+stringify-json-object@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/stringify-json-object/-/stringify-json-object-3.0.0.tgz#71b453961a3e336e7dd75cee9f0b6a98da72385d"
+  integrity sha512-Uwlxo+VFEsDX+IYlBBXsrxsce6IldTL5nTn9kJbhw4MJoYaBudDVFKiT1Bb4Nw7qfeMYs92TR5iqC9tc5poxiw==
   dependencies:
-    types-json "^3.0.0"
+    types-json "^3.1.2"
 
 strip-ansi@6.0.0:
   version "6.0.0"
@@ -6401,10 +6389,10 @@ types-json@^1.2.0, types-json@^1.2.2:
   resolved "https://registry.yarnpkg.com/types-json/-/types-json-1.2.2.tgz#91ebe6de59e741ab38a98b071708a29494cedfe6"
   integrity sha512-VfVLISHypS7ayIHvhacOESOTib4Sm4mAhnsgR8fzQdGp89YoBwMqvGmqENjtYehUQzgclT+7NafpEXkK/MHKwA==
 
-types-json@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/types-json/-/types-json-3.0.0.tgz#84735355ff84d859fd8177e13fdc6d9d2125a895"
-  integrity sha512-e2N3CuF+3Dr/5CORMjPHWqOXMG3s+grl299PmUTgiIeDx0BTDF3M/YlHGltaZL+TeZ6GiS6Af39FfHHrbbG7QA==
+types-json@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/types-json/-/types-json-3.1.2.tgz#3be9e2ac071bd09e9e8ae02e359adbb75c7b3ca9"
+  integrity sha512-MkU1yYWTZG9qBA0vZpJgn3AcSlJS5KMdeXX9dq+rNPfG4HjPCW5y1HnSypD+0LbME0oXEDMokAlgO67KXC3gdw==
   dependencies:
     zod "^3.20.2"
 
@@ -6708,12 +6696,12 @@ write-json-safe@^2.0.1, write-json-safe@^2.1.0:
     stringify-json-object "^1.0.7"
     write-file-safe "^1.3.1"
 
-write-json-safe@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/write-json-safe/-/write-json-safe-3.0.0.tgz#4dbd085ca435d3dfc8c0e056880fae30b8945aae"
-  integrity sha512-NbrnpScuql9q4N/Q1lnW7VnjHrG6jwl++Jf1V/mKlSykAtUKOJT1/5gUspozHVeDJEsQ25Tpb4dEVFZ3mwxPEw==
+write-json-safe@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/write-json-safe/-/write-json-safe-4.0.0.tgz#8b6fd1e96afdce958d3e15c7bded105bd190b547"
+  integrity sha512-ZeXUbIp4SW32hRj50Pvuv1TJWTIvF/7GTF+fjuUKhjxk+ARg5reg5372lIrm8ppyrlcX5JeBQg65Grj4vueRQA==
   dependencies:
-    stringify-json-object "^2.0.0"
+    stringify-json-object "^3.0.0"
     write-file-safe "^2.0.1"
 
 write-md-safe@^1.2.0:

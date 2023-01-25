@@ -1,4 +1,4 @@
-import { JSONObject } from "read-json-safe";
+import { NestedOptionalJSONObject } from "types-json";
 import { Schema } from "../index.js";
 import { ArrayTableData, ArrayTableItem, ArrayTableName } from "../table/array-table.js";
 
@@ -12,11 +12,11 @@ export type SortOrder<FieldName extends string> =
 
 export type OrderBy<FieldName extends string> = Array<SortOrder<FieldName>> | SortOrder<FieldName>;
 
-type SortablePrimitiveKeys<T> = T extends JSONObject
+type SortablePrimitiveKeys<T> = T extends NestedOptionalJSONObject
   ? { [K in keyof T]: T[K] extends (string | number | null) ? K : never }[keyof T extends string ? keyof T : never]
   : never;
 
-export type OrderByQuery<S extends Schema, N extends ArrayTableName<S>> = ArrayTableItem<S, N> extends JSONObject
+export type OrderByQuery<S extends Schema, N extends ArrayTableName<S>> = ArrayTableItem<S, N> extends NestedOptionalJSONObject
   ? { orderBy?: OrderBy<SortablePrimitiveKeys<ArrayTableItem<S, N>>>; }
   : { orderBy?: never; };
 
@@ -28,8 +28,8 @@ export function sort<S extends Schema, N extends ArrayTableName<S>>(array: Array
     return [...array].sort((a, b) => {
       for(const field of orderBy) {
         const [name, order, _, nulls] = field.split("_") as [string, "asc" | "desc", "nullish", "first" | "last"];
-        const valueA = (a as JSONObject)[name];
-        const valueB = (b as JSONObject)[name];
+        const valueA = (a as NestedOptionalJSONObject)[name];
+        const valueB = (b as NestedOptionalJSONObject)[name];
         if(valueA === undefined || valueA === null) {
           return nulls === "first" ? -1 : 1;
         } else if(valueB === undefined || valueB === null) {

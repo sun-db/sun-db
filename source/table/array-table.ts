@@ -1,11 +1,10 @@
 /* eslint-disable max-lines */
 import z from "zod";
-import { JSONValue, JSONObject } from "types-json";
+import { JSONValue, JSONObject, OptionalJSONValue } from "types-json";
 import { Schema, TableName } from "../index.js";
 import { Table } from "./table.js";
 import { QueryOne, Query, DataQueryOne, DataQuery, PartialDataQuery, PartialDataQueryOne, find, filter, map } from "../query/index.js";
 import { OrSymbol, now, uuid, serialID } from "../symbol.js";
-import { OptionalJSONValue } from "../utils.js";
 
 export type ArrayTableSchema = z.ZodArray<z.ZodSchema<OptionalJSONValue>>;
 
