@@ -5,14 +5,14 @@ import { SunDB } from "../../../source/index.js";
 beforeEach(setup);
 afterEach(restore);
 
-test("upsert match", async () => {
+test("upsert first match", async () => {
   const { client } = new SunDB("./data.json", schema);
   const post = {
     id: 3,
     title: "New Title",
     content: "New Content"
   };
-  await client.posts.upsert({
+  await client.posts.upsertFirst({
     where: {
       title: {
         eq: "Hello World"
@@ -24,7 +24,7 @@ test("upsert match", async () => {
   expect(posts).toEqual([post, data.posts[1]]);
 });
 
-test("upsert no match", async () => {
+test("upsert first no match", async () => {
   const { client } = new SunDB("./data.json", schema);
   const post = {
     id: 3,
@@ -43,14 +43,14 @@ test("upsert no match", async () => {
   expect(posts).toEqual([...data.posts, post]);
 });
 
-test("upsert serialID", async () => {
+test("upsert first serialID", async () => {
   const { client } = new SunDB("./data.json", schema);
   const post = {
     id: client.posts.serialID,
     title: "New Title",
     content: "New Content"
   };
-  await client.posts.upsert({
+  await client.posts.upsertFirst({
     where: {
       title: {
         eq: "Does not exist"

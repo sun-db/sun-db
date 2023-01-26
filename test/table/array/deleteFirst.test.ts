@@ -6,9 +6,9 @@ afterEach(restore);
 
 import { SunDB } from "../../../source/index.js";
 
-test("delete", async () => {
+test("delete first", async () => {
   const { client } = new SunDB("./data.json", schema);
-  await client.posts.delete({
+  await client.posts.deleteFirst({
     where: {
       title: {
         eq: "Hello World"

@@ -6,9 +6,9 @@ import { SunDB } from "../../../source/index.js";
 beforeEach(setup);
 afterEach(restore);
 
-test("update", async () => {
+test("update first", async () => {
   const { client } = new SunDB("./data.json", schema);
-  await client.posts.update({
+  await client.posts.updateFirst({
     where: {
       title: {
         eq: "Hello World"
@@ -22,9 +22,9 @@ test("update", async () => {
   expect(posts).toEqual([{ ...data.posts[0], title: "Hello Worlds" }, data.posts[1]]);
 });
 
-test("update now", async () => {
+test("update first now", async () => {
   const { client } = new SunDB("./data.json", schema);
-  await client.posts.update({
+  await client.posts.updateFirst({
     where: {
       title: {
         eq: "Hello World"

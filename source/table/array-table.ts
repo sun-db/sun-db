@@ -41,7 +41,7 @@ export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends T
       } else if(item === this.serialID) {
         return serialID(await this.read(), path);
       } else {
-        throw new Error("Invalid symbol");
+        throw new Error("Invalid Symbol");
       }
     } else if(typeof item === "object" && item !== null && !Array.isArray(item)) {
       return Object.entries(item).reduce(async (retval, [key, value]) => {

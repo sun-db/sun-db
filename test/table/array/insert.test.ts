@@ -1,7 +1,7 @@
 import { test, expect, beforeEach, afterEach } from "@jest/globals";
 import z from "zod";
-import { schema, setup, restore } from "../setup.js";
-import { SunDB } from "../../source/index.js";
+import { schema, setup, restore } from "../../setup.js";
+import { SunDB } from "../../../source/index.js";
 
 beforeEach(setup);
 afterEach(restore);
@@ -55,4 +55,20 @@ test("insert serialID", async () => {
   const posts = await client.posts.select();
   const id = posts[posts.length-1].id;
   expect(id).toBe("3");
+});
+
+test("insert invalid symbol", async () => {
+  const { client } = new SunDB("./data.json", schema);
+  const data = {
+    id: Symbol("invalid"),
+    title: "Hello World 2",
+    content: "Serial ID Test"
+  };
+  let error: Error | undefined;
+  try {
+    await client.posts.insert(data);
+  } catch(e) {
+    error = e;
+  }
+  expect(error).toEqual(new Error("Invalid Symbol"));
 });
