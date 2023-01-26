@@ -19,7 +19,7 @@ test("schema", () => {
 
 test("tables", async () => {
   const db = new SunDB("./data.json", schema);
-  expect(db.tables()).toEqual(["users", "posts"]);
+  expect(db.tables()).toEqual(["users", "posts", "items"]);
 });
 
 test("read", async () => {

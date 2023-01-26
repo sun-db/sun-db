@@ -22,7 +22,8 @@ export const data = {
     id: 2,
     title: "Second Post",
     content: null
-  }]
+  }],
+  items: ["a", "b", "c", null]
 };
 
 export function setup() {
@@ -48,5 +49,6 @@ export const schema = {
     id: z.number().int().positive(),
     title: z.string(),
     content: z.union([z.string(), z.null()])
-  })
+  }),
+  items: arrayTable(z.union([z.string(), z.null()]))
 };

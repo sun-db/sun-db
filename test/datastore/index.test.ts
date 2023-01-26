@@ -8,7 +8,7 @@ afterEach(restore);
 
 test("tables", () => {
   const db = new Datastore("./data.json", schema);
-  expect(db.tables()).toEqual(["users", "posts"]);
+  expect(db.tables()).toEqual(["users", "posts", "items"]);
 });
 
 test("read invalid data", async () => {
@@ -16,7 +16,8 @@ test("read invalid data", async () => {
   await writeJSON("./data.json", { users: "invalid" });
   expect(await db.read()).toEqual({
     users: {},
-    posts: []
+    posts: [],
+    items: []
   });
 });
 

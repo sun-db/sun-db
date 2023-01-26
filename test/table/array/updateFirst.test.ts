@@ -22,6 +22,18 @@ test("update first", async () => {
   expect(posts).toEqual([{ ...data.posts[0], title: "Hello Worlds" }, data.posts[1]]);
 });
 
+test("updateFirst value", async () => {
+  const { client } = new SunDB("./data.json", schema);
+  await client.items.updateFirst({
+    where: {
+      neq: null
+    },
+    data: "A"
+  });
+  const items = await client.items.select();
+  expect(items).toEqual(["A", "b", "c", null]);
+});
+
 test("update first now", async () => {
   const { client } = new SunDB("./data.json", schema);
   await client.posts.updateFirst({

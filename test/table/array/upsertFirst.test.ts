@@ -24,6 +24,18 @@ test("upsert first match", async () => {
   expect(posts).toEqual([post, data.posts[1]]);
 });
 
+test("upsertFirst value", async () => {
+  const { client } = new SunDB("./data.json", schema);
+  await client.items.upsertFirst({
+    where: {
+      neq: null
+    },
+    data: "A"
+  });
+  const items = await client.items.select();
+  expect(items).toEqual(["A", "b", "c", null]);
+});
+
 test("upsert first no match", async () => {
   const { client } = new SunDB("./data.json", schema);
   const post = {
