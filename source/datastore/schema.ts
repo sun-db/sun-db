@@ -48,4 +48,3 @@ export type DatabaseData<S extends Schema> = Partial<TablesData<S>> & Metadata;
 export function listTables<S extends Schema>(schema: S) {
   return Object.keys(schema) as TableName<S>[];
 }
-

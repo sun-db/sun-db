@@ -7,7 +7,9 @@ import {
   NestedOptionalJSONObject,
   NestedOptionalJSONArray,
   OptionalNumber,
-  OptionalString
+  OptionalString,
+  OptionalJSONArray,
+  OptionalJSONObject
 } from "types-json";
 import { Schema } from "../index.js";
 import { ArrayTableItem, ArrayTableName } from "../table/array-table.js";
@@ -59,9 +61,9 @@ export type StringComparison<V extends OptionalString> =
   & ListComparison<V>
   & TextComparison;
 
-export type ArrayComparison<V extends NestedOptionalJSONArray> = {
-  contains?: Comparison<V[number]>;
-  ncontains?: Comparison<V[number]>;
+export type ArrayComparison<V extends OptionalJSONArray> = {
+  contains?: Comparison<V extends NestedOptionalJSONArray ? V[number] : undefined>;
+  ncontains?: Comparison<V extends NestedOptionalJSONArray ? V[number] : undefined>;
 };
 
 export type ObjectComparison<V extends NestedOptionalJSONObject> = {
@@ -74,12 +76,12 @@ export type Comparison<V extends OptionalJSONValue> = V extends OptionalBoolean
     ? NumberComparison<V>
     : V extends string
       ? StringComparison<V>
-      : V extends NestedOptionalJSONArray
-        ? ArrayComparison<V>
-        : V extends NestedOptionalJSONObject
-          ? ObjectComparison<V>
-          : V extends null
-            ? NullComparison<V>
+      : V extends null
+        ? NullComparison<V>
+        : V extends OptionalJSONArray
+          ? ArrayComparison<V>
+          : V extends NestedOptionalJSONObject
+            ? ObjectComparison<V>
             : never;
 
 export type Where<S extends Schema, N extends ArrayTableName<S>> = Comparison<ArrayTableItem<S, N>>;
@@ -94,17 +96,17 @@ function compareEquality<V extends OptionalJSONPrimitive>(value: V, where: Equal
   return true;
 }
 
-function compareMagnitude<V extends string | number>(value: V, where: MagnitudeComparison<V>): boolean {
-  if(where.gt !== undefined && value <= where.gt) {
+function compareMagnitude<V extends Optional<string | number>>(value: V, where: MagnitudeComparison<V>): boolean {
+  if(where.gt !== undefined && (value === undefined || value <= where.gt)) {
     return false;
   }
-  if(where.gte !== undefined && value < where.gte) {
+  if(where.gte !== undefined && (value === undefined || value < where.gte)) {
     return false;
   }
-  if(where.lt !== undefined && value >= where.lt) {
+  if(where.lt !== undefined && (value === undefined || value >= where.lt)) {
     return false;
   }
-  if(where.lte !== undefined && value > where.lte) {
+  if(where.lte !== undefined && (value === undefined || value > where.lte)) {
     return false;
   }
   return true;
@@ -120,70 +122,68 @@ function compareList<V extends OptionalJSONPrimitive>(value: V, where: ListCompa
   return true;
 }
 
-function compareText(value: string, where: TextComparison): boolean {
-  if(where.startsWith !== undefined && !value.startsWith(where.startsWith)) {
+function compareText(value: OptionalString, where: TextComparison): boolean {
+  if(where.startsWith !== undefined && !value?.startsWith(where.startsWith)) {
     return false;
   }
-  if(where.nstartsWith !== undefined && value.startsWith(where.nstartsWith)) {
+  if(where.nstartsWith !== undefined && value?.startsWith(where.nstartsWith)) {
     return false;
   }
-  if(where.endsWith !== undefined && !value.endsWith(where.endsWith)) {
+  if(where.endsWith !== undefined && !value?.endsWith(where.endsWith)) {
     return false;
   }
-  if(where.nendsWith !== undefined && value.endsWith(where.nendsWith)) {
+  if(where.nendsWith !== undefined && value?.endsWith(where.nendsWith)) {
     return false;
   }
-  if(where.includes !== undefined && !value.includes(where.includes)) {
+  if(where.includes !== undefined && !value?.includes(where.includes)) {
     return false;
   }
-  if(where.nincludes !== undefined && value.includes(where.nincludes)) {
+  if(where.nincludes !== undefined && value?.includes(where.nincludes)) {
     return false;
   }
-  if(where.regex !== undefined && !where.regex.test(value)) {
+  if(where.regex !== undefined && (value === undefined || !where.regex.test(value))) {
     return false;
   }
-  if(where.nregex !== undefined && where.nregex.test(value)) {
+  if(where.nregex !== undefined && value !== undefined && where.nregex.test(value)) {
     return false;
   }
   return true;
 }
 
-function compareArray<V extends NestedOptionalJSONArray>(value: V, where: ArrayComparison<V>): boolean {
+function compareArray<V extends OptionalJSONArray>(value: V, where: ArrayComparison<V>): boolean {
   let result = true;
   const contains = where.contains;
   if(contains !== undefined) {
-    result = result && value.some((item) => compare(item, contains));
+    result = result && Boolean(value?.some((item) => compare(item, contains as Comparison<NestedOptionalJSONArray>)));
   }
   const ncontains = where.ncontains;
   if(ncontains !== undefined) {
-    result = result && !value.some((item) => compare(item, ncontains));
+    result = result && !value?.some((item) => compare(item, ncontains as Comparison<NestedOptionalJSONArray>));
   }
   return result;
 }
 
 function compareObject<V extends NestedOptionalJSONObject>(value: V, where: ObjectComparison<V>): boolean {
-  if(value !== undefined) {
-    // eslint-disable-next-line guard-for-in
-    for(const fieldName in where) {
-      const fieldValue = value[fieldName];
-      if(fieldValue !== undefined) {
-        const comparison = where[fieldName] as Comparison<NonNullable<V[Extract<keyof V, string>]>>;
-        if(compare(fieldValue, comparison) === false) {
-          return false;
-        }
-      }
+  // eslint-disable-next-line guard-for-in
+  for(const fieldName in where) {
+    const comparison = where[fieldName] as Comparison<NonNullable<V[Extract<keyof V, string>]>>;
+    const fieldValue = value[fieldName];
+    if(compare(fieldValue, comparison) === false) {
+      return false;
     }
-    return true;
-  } else {
-    return false;
   }
+  return true;
 }
 
 export function compare<V extends OptionalJSONValue>(value: V, where?: Comparison<V>): boolean {
   if(where === undefined) {
     return true;
   } else if(value === undefined) {
-    return false;
+    return compareEquality(value, where as BooleanComparison<undefined>)
+      && compareMagnitude(value, where as MagnitudeComparison<undefined>)
+      && compareList(value, where as ListComparison<undefined>)
+      && compareText(value, where as TextComparison)
+      && compareArray(value, where as ArrayComparison<undefined>);
   } else if(typeof value === "boolean") {
     return compareEquality(value, where as BooleanComparison<boolean>);
   } else if(typeof value === "number") {

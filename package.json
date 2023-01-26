@@ -62,6 +62,7 @@
     "@types/mock-fs": "^4.13.1",
     "@types/node": "^18.11.18",
     "autorepo": "^0.1.9",
+    "file-exists-safe": "^2.0.0",
     "jest": "^29.3.1",
     "mock-fs": "^5.2.0",
     "tinybench": "^2.3.1",

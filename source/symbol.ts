@@ -16,7 +16,7 @@ function valueAtPath(parent: OptionalJSONValue, path: string[] = []): OptionalJS
   if(field === undefined) {
     return parent;
   } else if(typeof parent === "object" && parent !== null && parent !== undefined) {
-    return valueAtPath((parent as any)[field], path.slice(1));
+    return valueAtPath((parent as NestedOptionalJSONObject)[field], path.slice(1));
   } else {
     return undefined;
   }

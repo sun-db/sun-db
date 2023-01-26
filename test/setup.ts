@@ -3,7 +3,7 @@ import z from "zod";
 import mock, { restore } from "mock-fs";
 import { arrayTable, recordTable } from "../source/index.js";
 
-export const db = {
+export const data = {
   users: {
     1: {
       name: "John",
@@ -28,7 +28,8 @@ export const db = {
 export function setup() {
   mock({
     [tmpdir()]: {},
-    "data.json": JSON.stringify(db)
+    "data.json": JSON.stringify(data),
+    "/no-access": mock.directory({ mode: 0 })
   }, {
     createTmp: false
   });

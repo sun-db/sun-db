@@ -1,6 +1,6 @@
 import { test, expect, beforeEach, afterEach } from "@jest/globals";
-import { schema, setup, restore, db } from "../setup.js";
-import { SunDB } from "../../source/index.js";
+import { schema, setup, restore, data } from "../../setup.js";
+import { SunDB } from "../../../source/index.js";
 
 beforeEach(setup);
 afterEach(restore);
@@ -8,7 +8,7 @@ afterEach(restore);
 test("select empty", async () => {
   const { client } = new SunDB("./data.json", schema);
   const posts = await client.posts.select();
-  expect(posts).toEqual(db.posts);
+  expect(posts).toEqual(data.posts);
 });
 
 test("select eq", async () => {
@@ -20,7 +20,7 @@ test("select eq", async () => {
       }
     }
   });
-  expect(posts).toEqual([db.posts[0]]);
+  expect(posts).toEqual([data.posts[0]]);
 });
 
 test("select none", async () => {

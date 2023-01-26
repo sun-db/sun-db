@@ -1,6 +1,6 @@
 import { test, expect, beforeEach, afterEach } from "@jest/globals";
 import z from "zod";
-import { schema, setup, restore, db } from "../setup.js";
+import { schema, setup, restore, data } from "../setup.js";
 import { SunDB } from "../../source/index.js";
 
 beforeEach(setup);
@@ -19,7 +19,7 @@ test("update", async () => {
     }
   });
   const posts = await client.posts.select();
-  expect(posts).toEqual([{ ...db.posts[0], title: "Hello Worlds" }, db.posts[1]]);
+  expect(posts).toEqual([{ ...data.posts[0], title: "Hello Worlds" }, data.posts[1]]);
 });
 
 test("update", async () => {

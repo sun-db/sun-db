@@ -1,5 +1,5 @@
 import { test, expect, beforeEach, afterEach } from "@jest/globals";
-import { schema, setup, restore, db } from "../setup.js";
+import { schema, setup, restore, data } from "../setup.js";
 
 beforeEach(setup);
 afterEach(restore);
@@ -16,5 +16,5 @@ test("delete", async () => {
     }
   });
   const posts = await client.posts.select();
-  expect(posts).toEqual([db.posts[1]]);
+  expect(posts).toEqual([data.posts[1]]);
 });

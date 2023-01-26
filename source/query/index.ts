@@ -49,8 +49,8 @@ export function filter<S extends Schema, N extends ArrayTableName<S>>(array: Arr
     let index = 0;
     let offset = query.offset ?? 0;
     while(result.length < (query.limit ?? array.length) && index < array.length) {
-      const item = array[index];
-      if(item !== undefined && compare(item, query.where)) {
+      const item = array[index] as ArrayTableItem<S, N>;
+      if(compare(item, query.where)) {
         if(offset > 0) {
           offset -= 1;
         } else {
@@ -92,5 +92,3 @@ export function map<S extends Schema, N extends ArrayTableName<S>>(
   }
   return result;
 }
-
-

@@ -27,7 +27,7 @@ export function sort<S extends Schema, N extends ArrayTableName<S>>(array: Array
     const orderBy = Array.isArray(query.orderBy) ? query.orderBy : [query.orderBy];
     return [...array].sort((a, b) => {
       for(const field of orderBy) {
-        const [name, order, _, nulls] = field.split("_") as [string, "asc" | "desc", "nullish", "first" | "last"];
+        const [name, order, _, nulls] = field.split("_") as [string, "asc" | "desc"] | [string, "asc" | "desc", "nullish", "first" | "last"];
         const valueA = (a as NestedOptionalJSONObject)[name];
         const valueB = (b as NestedOptionalJSONObject)[name];
         if(valueA === undefined || valueA === null) {
