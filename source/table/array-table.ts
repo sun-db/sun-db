@@ -25,7 +25,7 @@ export type ArrayTableData<S extends Schema, N extends ArrayTableName<S>> = Arra
 export class ArrayTable<S extends Schema, N extends ArrayTableName<S>> extends Table<S, N> {
   private async read(): Promise<ArrayTableData<S, N>> {
     const databaseData = await this.datastore.read();
-    return (databaseData[this.name] as ArrayTableData<S, N>) ?? {};
+    return (databaseData[this.name] as ArrayTableData<S, N>) ?? [];
   }
   private async write(data: ArrayTableData<S, N>): Promise<void> {
     const databaseData = await this.datastore.read();
