@@ -63,3 +63,28 @@ test("add serialID", async () => {
   const user = await client.users.add(client.users.serialID, data);
   expect(user?.[0]).toBe("3");
 });
+
+test("add now", async () => {
+  const { client } = new SunDB("./data.json", schema);
+  const data = {
+    name: "New User",
+    age: 22
+  };
+  const user = await client.users.add(client.users.now, data);
+  expect(z.string().datetime().safeParse(user?.[0]).success).toBe(true);
+});
+
+test("add invalid symbol", async () => {
+  const { client } = new SunDB("./data.json", schema);
+  const data = {
+    name: "New User",
+    age: 22
+  };
+  let error: Error | undefined;
+  try {
+    await client.users.add(Symbol("invalid"), data);
+  } catch(e) {
+    error = e;
+  }
+  expect(error).toEqual(new Error("Invalid Symbol"));
+});

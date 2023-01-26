@@ -53,7 +53,7 @@ export class RecordTable<S extends Schema, N extends TableName<S> & RecordTableN
       } else if(key === this.now) {
         return now() as RecordTableKey<S, N>;
       } else {
-        throw new Error("Invalid symbol");
+        throw new Error("Invalid Symbol");
       }
     } else {
       return key;
